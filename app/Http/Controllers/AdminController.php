@@ -38,4 +38,37 @@ class AdminController extends Controller
             'user' => $newUser,
         ]);
     }
+
+    public function myCompany(Request $request)
+{
+    try {
+        $user = $request->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'message' => 'Company not found for this user.',
+            ], 404);
+        }
+
+        $company = \App\Models\Company::with('users')->find($user->company_id);
+
+        if (!$company) {
+            return response()->json([
+                'message' => 'Company not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Company retrieved successfully.',
+            'company' => $company,
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to fetch company.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }

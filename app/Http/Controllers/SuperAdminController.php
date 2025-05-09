@@ -62,4 +62,60 @@ class SuperAdminController extends Controller
     }
 }
 
+
+public function readCompany($companyId)
+    {
+        try {
+
+            if (!Str::isUuid($companyId)) {
+            return response()->json([
+                'message' => 'Invalid company ID format.',
+            ], 400);
+        }
+            // Find the company by its ID
+            $company = Company::with('users')->find($companyId);
+
+            if (!$company) {
+                return response()->json([
+                    'message' => 'Company not found.',
+                ], 404);
+            }
+
+            // If the company exists, return the company with users (including the admin)
+            return response()->json([
+                'message' => 'Company retrieved successfully.',
+                'company' => $company,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to fetch company.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function readAllCompanies(Request $request)
+{
+    try {
+        // Get the 'per_page' query parameter, or default to 10 if not provided
+        $perPage = $request->input('per_page', 10); 
+
+        // Get all companies with pagination
+        $companies = Company::with('users')->paginate($perPage);
+
+        return response()->json([
+            'message' => 'Companies retrieved successfully.',
+            'data' => $companies,
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to fetch companies.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }
