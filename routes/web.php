@@ -29,6 +29,15 @@ Route::post('/logout', function () {
     return redirect()->route('login');
 })->name('logout')->middleware('auth');
 
+// Redirect base URL to dashboard or login
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    } else {
+        return redirect()->route('login');
+    }
+});
+
 // Protected routes (session auth)
 Route::middleware('auth')->group(function () {
     // Role-based dashboard route
