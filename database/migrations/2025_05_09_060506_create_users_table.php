@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('role', ['super_admin', 'admin', 'user'])->default('user');
             $table->uuid('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

@@ -5,7 +5,7 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'L5 Swagger UI',
+                'title' => 'Swagger UI',
             ],
 
             'routes' => [
@@ -208,13 +208,16 @@ return [
                         ],
                     ],
                 ],
+                */
                 'sanctum' => [ // Unique name of security
-                    'type' => 'apiKey', // Valid values are "basic", "apiKey" or "oauth2".
+                    'type' => 'http', // Valid values are "basic", "apiKey" or "oauth2".
                     'description' => 'Enter token in format (Bearer <token>)',
                     'name' => 'Authorization', // The name of the header or query parameter to be used.
                     'in' => 'header', // The location of the API key. Valid values are "query" or "header".
+                    'scheme' => 'bearer', // The name of the HTTP Authorization scheme to be used in the Authorization header.
+                    'bearerFormat' => 'JWT', // A hint to the client to identify how the bearer token is formatted.
                 ],
-                */
+                
             ],
             'security' => [
                 /*

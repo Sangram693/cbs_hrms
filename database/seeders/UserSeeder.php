@@ -11,46 +11,42 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $company = Company::first(); // Use first seeded company
+        $companies = Company::all();
 
-        if (!$company) {
-            throw new \Exception('No company found. Make sure CompanySeeder runs before UserSeeder.');
+        // Super Admin (global, not tied to a company)
+        User::firstOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'id' => Str::uuid(),
+                'name' => 'Super Admin',
+                'password' => 'password',
+                'role' => 'super_admin',
+                'company_id' => null,
+            ]
+        );
+
+        // Admin and user for each company
+        foreach ($companies as $company) {
+            User::firstOrCreate(
+                ['email' => 'admin_' . strtolower($company->name) . '@example.com'],
+                [
+                    'id' => Str::uuid(),
+                    'name' => $company->name . ' Admin',
+                    'password' => 'password',
+                    'role' => 'admin',
+                    'company_id' => $company->id,
+                ]
+            );
+            User::firstOrCreate(
+                ['email' => 'user_' . strtolower($company->name) . '@example.com'],
+                [
+                    'id' => Str::uuid(),
+                    'name' => $company->name . ' User',
+                    'password' => 'password',
+                    'role' => 'user',
+                    'company_id' => $company->id,
+                ]
+            );
         }
-       // Super Admin
-User::firstOrCreate(
-    ['email' => 'superadmin@example.com'], // Check for existing email
-    [
-        'id' => Str::uuid(),
-        'name' => 'Super Admin',
-        'password' => 'password',
-        'role' => 'super_admin',
-        'company_id' => null,
-    ]
-);
-
-// Admin
-User::firstOrCreate(
-    ['email' => 'admin@example.com'],
-    [
-        'id' => Str::uuid(),
-        'name' => 'Admin User',
-        'password' => 'password',
-        'role' => 'admin',
-        'company_id' => $company->id,
-    ]
-);
-
-// Regular user
-User::firstOrCreate(
-    ['email' => 'user@example.com'],
-    [
-        'id' => Str::uuid(),
-        'name' => 'Employee User',
-        'password' => 'password',
-        'role' => 'user',
-        'company_id' => $company->id,
-    ]
-);
-
     }
 }

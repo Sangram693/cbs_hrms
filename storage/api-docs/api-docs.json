@@ -1,7 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "User API",
+        "title": "HRMS API",
+        "description": "This API handles all HRMS (Human Resource Management System) operations, including employee management, attendance, and payroll.",
         "version": "1.0"
     },
     "servers": [
@@ -10,6 +11,2276 @@
         }
     ],
     "paths": {
+        "/create-user": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create a new user (employee) under the admin's company",
+                "operationId": "d9f7eadb34851fbb561cb64df3bfd867",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User created successfully."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Only admins can create users."
+                    },
+                    "422": {
+                        "description": "Validation error."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/my-company": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get the company details for the authenticated admin, including its users",
+                "operationId": "6466de4e035a15f91de104360cb1a5e2",
+                "responses": {
+                    "200": {
+                        "description": "Company retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company retrieved successfully."
+                                        },
+                                        "company": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Company not found for this user."
+                    },
+                    "500": {
+                        "description": "Failed to fetch company."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/update-company": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update the authenticated admin's company details",
+                "operationId": "3ae964089a8a03363a296feb8a545235",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "New Company Name"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Company updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company updated successfully."
+                                        },
+                                        "company": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Company not found."
+                    },
+                    "403": {
+                        "description": "Unauthorized."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/update-user/{userId}": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update user details (admin only)",
+                "operationId": "ef65e22e57c8125e9a9d63276c0ff70f",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User updated successfully."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found."
+                    },
+                    "403": {
+                        "description": "Unauthorized."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/terminate-user/{userId}": {
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Terminate (deactivate) a user (admin only)",
+                "operationId": "3fe2c3436ecb75489c1196ec417f4f7d",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User terminated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User terminated successfully."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found."
+                    },
+                    "403": {
+                        "description": "Unauthorized."
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/attendances": {
+            "get": {
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "List all attendances for the authenticated user's company",
+                "operationId": "ff069bddc42949182375f846d96064d1",
+                "responses": {
+                    "200": {
+                        "description": "List of attendances",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "employee_id": {
+                                                "type": "integer"
+                                            },
+                                            "company_id": {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "check_in": {
+                                                "type": "string",
+                                                "format": "time",
+                                                "nullable": true
+                                            },
+                                            "check_out": {
+                                                "type": "string",
+                                                "format": "time",
+                                                "nullable": true
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Create a new attendance record",
+                "operationId": "2eea9b5eeef7f488176ba8858f9119ee",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "date",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "check_in": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "nullable": true
+                                    },
+                                    "check_out": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Attendance created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "check_in": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "check_out": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/attendances/{id}": {
+            "get": {
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Get an attendance record by ID",
+                "operationId": "5cb411eff4a252fddcfa27f1d99e8e53",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "check_in": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "check_out": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Attendance not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Update an attendance record",
+                "operationId": "3c276f4a64b98d0e4ddcd72149ea81f8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "check_in": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "nullable": true
+                                    },
+                                    "check_out": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attendance updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "check_in": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "check_out": {
+                                            "type": "string",
+                                            "format": "time",
+                                            "nullable": true
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Attendance not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "Delete an attendance record",
+                "operationId": "34abd31dcc88e2514a8787b9f792d28e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Attendance deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Attendance not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/logins": {
+            "get": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "List all logins for the authenticated user's company",
+                "operationId": "9b5a54dcc17251e07aaf02d778ebd8ca",
+                "responses": {
+                    "200": {
+                        "description": "List of logins",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "employee_id": {
+                                                "type": "integer"
+                                            },
+                                            "company_id": {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "username": {
+                                                "type": "string"
+                                            },
+                                            "password_hash": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "string"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Create a new login record",
+                "operationId": "6458ccb61c94d3952b6c75741149ea3f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "username",
+                                    "password_hash",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "password_hash": {
+                                        "type": "string",
+                                        "example": "$2y$10$..."
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "Admin"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Login created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "username": {
+                                            "type": "string"
+                                        },
+                                        "password_hash": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/logins/{id}": {
+            "get": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Get a login record by ID",
+                "operationId": "e2f3d6bff9ad6c9aaa30743ff068a29d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "username": {
+                                            "type": "string"
+                                        },
+                                        "password_hash": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Update a login record",
+                "operationId": "d3324dd8673c26ae703a20ee4c6780c3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "password_hash": {
+                                        "type": "string",
+                                        "example": "$2y$10$..."
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "Admin"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "username": {
+                                            "type": "string"
+                                        },
+                                        "password_hash": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Delete a login record",
+                "operationId": "e86a1dc4c3291203fa293dd5a0d0bf13",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/salaries": {
+            "get": {
+                "tags": [
+                    "Salary"
+                ],
+                "summary": "List all salaries for the authenticated user's company",
+                "operationId": "aa4b7bfe16398c091cf432dfb5e96223",
+                "responses": {
+                    "200": {
+                        "description": "List of salaries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "employee_id": {
+                                                "type": "integer"
+                                            },
+                                            "company_id": {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "salary_month": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "base_salary": {
+                                                "type": "number",
+                                                "format": "decimal"
+                                            },
+                                            "bonus": {
+                                                "type": "number",
+                                                "format": "decimal"
+                                            },
+                                            "deductions": {
+                                                "type": "number",
+                                                "format": "decimal"
+                                            },
+                                            "net_salary": {
+                                                "type": "number",
+                                                "format": "decimal"
+                                            },
+                                            "paid_on": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "nullable": true
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Salary"
+                ],
+                "summary": "Create a new salary record",
+                "operationId": "40e8d5d272fe0879149b39b6b99624ac",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "salary_month",
+                                    "base_salary",
+                                    "net_salary"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "salary_month": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-01"
+                                    },
+                                    "base_salary": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 50000
+                                    },
+                                    "bonus": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 5000
+                                    },
+                                    "deductions": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 1000
+                                    },
+                                    "net_salary": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 54000
+                                    },
+                                    "paid_on": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-05"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Salary created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "salary_month": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "base_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "bonus": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "deductions": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "net_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "paid_on": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/salaries/{id}": {
+            "get": {
+                "tags": [
+                    "Salary"
+                ],
+                "summary": "Get a salary record by ID",
+                "operationId": "4507785ff48fb155a6068db62dd1e3ef",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Salary details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "salary_month": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "base_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "bonus": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "deductions": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "net_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "paid_on": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Salary"
+                ],
+                "summary": "Update a salary record",
+                "operationId": "647b1376fe25e3403407ef5c0780c14a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "salary_month": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-01"
+                                    },
+                                    "base_salary": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 50000
+                                    },
+                                    "bonus": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 5000
+                                    },
+                                    "deductions": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 1000
+                                    },
+                                    "net_salary": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 54000
+                                    },
+                                    "paid_on": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-05"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Salary updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "salary_month": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "base_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "bonus": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "deductions": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "net_salary": {
+                                            "type": "number",
+                                            "format": "decimal"
+                                        },
+                                        "paid_on": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Salary"
+                ],
+                "summary": "Delete a salary record",
+                "operationId": "e91701fe7eaf662d3258e0b944ae07e1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Salary deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Salary deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/create-company": {
+            "post": {
+                "tags": [
+                    "SuperAdmin"
+                ],
+                "summary": "Create a company and its admin",
+                "description": "Creates a new company along with an associated admin user.",
+                "operationId": "5434928be60846cd4432b4146a3e2463",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "TechCorp"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Tech Street",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Company and Admin created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company and Admin created successfully."
+                                        },
+                                        "company": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "TechCorp"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Tech Street",
+                                                    "nullable": true
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "admin": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "a3f0c70e-1234-41ef-867e-7df8a320b155"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "TechCorp Admin"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "techcorp@admin.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "admin"
+                                                },
+                                                "company_id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Company name or admin email already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company name already exists."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create company or admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create company or admin."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "SQLSTATE[...]: Integrity constraint violation..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/company/{companyId}": {
+            "get": {
+                "tags": [
+                    "SuperAdmin"
+                ],
+                "summary": "Get a company by ID",
+                "description": "Fetches the details of a company, including its associated users (e.g., admin).",
+                "operationId": "4b5ce90f71dd2daceb93840ae17e6617",
+                "parameters": [
+                    {
+                        "name": "companyId",
+                        "in": "path",
+                        "description": "The ID of the company to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Company retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company retrieved successfully."
+                                        },
+                                        "company": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "TechCorp"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Tech Street",
+                                                    "nullable": true
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890",
+                                                    "nullable": true
+                                                },
+                                                "users": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "format": "uuid",
+                                                                "example": "a3f0c70e-1234-41ef-867e-7df8a320b155"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "TechCorp Admin"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "techcorp@admin.com"
+                                                            },
+                                                            "role": {
+                                                                "type": "string",
+                                                                "example": "admin"
+                                                            },
+                                                            "company_id": {
+                                                                "type": "string",
+                                                                "format": "uuid",
+                                                                "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid company ID format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid company ID format."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Company not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch company",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch company."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "SQLSTATE[...]: Integrity constraint violation..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/companies": {
+            "get": {
+                "tags": [
+                    "SuperAdmin"
+                ],
+                "summary": "Get all companies",
+                "description": "Fetches a list of all companies with pagination, including associated users (e.g., admins).",
+                "operationId": "ca557d3fc9a8dc253f2ec07037971cf6",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of results per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Companies retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Companies retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "format": "uuid",
+                                                        "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "TechCorp"
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "123 Tech Street",
+                                                        "nullable": true
+                                                    },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "example": "+1234567890",
+                                                        "nullable": true
+                                                    },
+                                                    "users": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "format": "uuid",
+                                                                    "example": "a3f0c70e-1234-41ef-867e-7df8a320b155"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "TechCorp Admin"
+                                                                },
+                                                                "email": {
+                                                                    "type": "string",
+                                                                    "example": "techcorp@admin.com"
+                                                                },
+                                                                "role": {
+                                                                    "type": "string",
+                                                                    "example": "admin"
+                                                                },
+                                                                "company_id": {
+                                                                    "type": "string",
+                                                                    "format": "uuid",
+                                                                    "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch companies",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to fetch companies."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "SQLSTATE[...]: Integrity constraint violation..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/trainings": {
+            "get": {
+                "tags": [
+                    "Training"
+                ],
+                "summary": "List all trainings for the authenticated user's company",
+                "operationId": "6866bfbeb26c08232253600ccc64dcab",
+                "responses": {
+                    "200": {
+                        "description": "List of trainings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "employee_id": {
+                                                "type": "integer"
+                                            },
+                                            "company_id": {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "training_name": {
+                                                "type": "string"
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "start_date": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "nullable": true
+                                            },
+                                            "end_date": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "nullable": true
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Create a new training record",
+                "operationId": "ff12987a61e7ecbd56811ad4ee47872b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "training_name",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "training_name": {
+                                        "type": "string",
+                                        "example": "Laravel Basics"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "Ongoing"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-10"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Training created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "training_name": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "start_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/trainings/{id}": {
+            "get": {
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Get a training record by ID",
+                "operationId": "6da151952408cf2a17856fa48e92dfec",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "training_name": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "start_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Update a training record",
+                "operationId": "7d38377b1b09fe961b76b98d481b7b29",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "training_name": {
+                                        "type": "string",
+                                        "example": "Laravel Basics"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "Ongoing"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-10"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-05-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Training updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "integer"
+                                        },
+                                        "company_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "training_name": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "start_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Training"
+                ],
+                "summary": "Delete a training record",
+                "operationId": "680286f19ac3b9507144691464db73de",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Training deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/login": {
             "post": {
                 "tags": [
@@ -119,8 +2390,44 @@
     },
     "tags": [
         {
+            "name": "Admin",
+            "description": "Admin"
+        },
+        {
+            "name": "Attendance",
+            "description": "Attendance"
+        },
+        {
+            "name": "Login",
+            "description": "Login"
+        },
+        {
+            "name": "Salary",
+            "description": "Salary"
+        },
+        {
+            "name": "SuperAdmin",
+            "description": "SuperAdmin"
+        },
+        {
+            "name": "Training",
+            "description": "Training"
+        },
+        {
             "name": "User",
             "description": "User"
         }
-    ]
+    ],
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
 }

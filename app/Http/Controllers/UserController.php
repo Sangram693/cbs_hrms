@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 /**
- * @OA\Info(title="User API", version="1.0")
+* @OA\Info(
+ *     title="HRMS API",
+ *     version="1.0",
+ *     description="This API handles all HRMS (Human Resource Management System) operations, including employee management, attendance, and payroll."
+ * )
 * @OA\Server(url="http://localhost:8000/api")
  */
 class UserController extends Controller
@@ -59,7 +64,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->where('active', true)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
@@ -71,6 +76,80 @@ class UserController extends Controller
             'token' => $token,
             'user' => $user,
         ]);
+    }
+
+    /**
+     * Handle session-based login for Blade (web) routes.
+     */
+    public function sessionLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (auth()->attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            $user = auth()->user();
+            if ($user->isAdmin()) {
+                return redirect()->intended('/dashboard');
+            } elseif ($user->isSuperAdmin()) {
+                return redirect()->intended('/dashboard');
+            } elseif ($user->isUser()) {
+                return redirect()->intended('/dashboard');
+            } else {
+                auth()->logout();
+                return back()->withErrors(['email' => 'Unauthorized role'])->withInput();
+            }
+        }
+
+        return back()->withErrors([
+            'email' => 'Invalid credentials',
+        ])->withInput();
+    }
+
+    // API endpoint for dashboard stats
+    public function dashboardStats(Request $request)
+    {
+        $user = $request->user();
+        $companyId = $user && $user->company_id ? $user->company_id : null;
+        $isSuperAdmin = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
+
+        $stats = [];
+        if ($isSuperAdmin) {
+            $stats['companies'] = DB::table('companies')->count();
+            $stats['employees'] = DB::table('users')->where('role', 'user')->where('active', true)->count();
+            $stats['departments'] = DB::table('departments')->count();
+            $stats['positions'] = DB::table('positions')->count();
+            $stats['attendance'] = DB::table('attendances')->count();
+            $stats['leaves'] = DB::table('leaves')->count();
+            $stats['salaries'] = DB::table('salaries')->count();
+            $stats['trainings'] = DB::table('trainings')->count();
+            $stats['logins'] = DB::table('logins')->count();
+        } elseif ($companyId) {
+            $stats['companies'] = 1;
+            $stats['employees'] = DB::table('users')->where('company_id', $companyId)->where('role', 'user')->where('active', true)->count();
+            $stats['departments'] = DB::table('departments')->where('company_id', $companyId)->count();
+            $stats['positions'] = DB::table('positions')->where('company_id', $companyId)->count();
+            $stats['attendance'] = DB::table('attendances')->where('company_id', $companyId)->count();
+            $stats['leaves'] = DB::table('leaves')->where('company_id', $companyId)->count();
+            $stats['salaries'] = DB::table('salaries')->where('company_id', $companyId)->count();
+            $stats['trainings'] = DB::table('trainings')->where('company_id', $companyId)->count();
+            $stats['logins'] = DB::table('logins')->where('company_id', $companyId)->count();
+        } else {
+            $stats = [
+                'companies' => 0,
+                'employees' => 0,
+                'departments' => 0,
+                'positions' => 0,
+                'attendance' => 0,
+                'leaves' => 0,
+                'salaries' => 0,
+                'trainings' => 0,
+                'logins' => 0,
+            ];
+        }
+        return response()->json($stats);
     }
 
     // Other methods like index, store, etc., can be similarly annotated.

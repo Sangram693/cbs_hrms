@@ -25,14 +25,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'cors' => Cors::class,
         ]);
-
+        // Example: $middleware->append('role:admin');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthenticationException $exception, $request) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized access. Please provide a valid token.',
-            ], 401);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized access. Please provide a valid token.',
+                ], 401);
+            }
+            return redirect()->guest(route('login'));
         });
 
         $exceptions->render(function (ValidationException $exception, $request) {
