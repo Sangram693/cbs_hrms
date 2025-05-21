@@ -18,7 +18,6 @@
                     [ 'label' => 'Leaves', 'icon' => '🌴', 'color' => 'indigo', 'route' => route('leaves.index'), 'count' => $stats['leaves'] ?? 0 ],
                     [ 'label' => 'Salaries', 'icon' => '💰', 'color' => 'red', 'route' => route('salaries.index'), 'count' => $stats['salaries'] ?? 0 ],
                     [ 'label' => 'Trainings', 'icon' => '📚', 'color' => 'teal', 'route' => route('trainings.index'), 'count' => $stats['trainings'] ?? 0 ],
-                    [ 'label' => 'Logins', 'icon' => '🔑', 'color' => 'gray', 'route' => route('logins.index'), 'count' => $stats['logins'] ?? 0 ],
                 ];
             @endphp
             @foreach ($stats as $stat)

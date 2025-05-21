@@ -13,7 +13,6 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\TrainingController;
-use App\Http\Controllers\LoginController;
 
 // Public login page
 Route::get('/login', function () {
@@ -54,7 +53,6 @@ Route::middleware('auth')->group(function () {
                 'leaves' => \DB::table('leaves')->count(),
                 'salaries' => \DB::table('salaries')->count(),
                 'trainings' => \DB::table('trainings')->count(),
-                'logins' => \DB::table('logins')->count(),
             ];
             return view('dashboard_superadmin', compact('stats'));
         } elseif ($user->role === 'admin') {
@@ -68,7 +66,6 @@ Route::middleware('auth')->group(function () {
                 'leaves' => \DB::table('leaves')->where('company_id', $companyId)->count(),
                 'salaries' => \DB::table('salaries')->where('company_id', $companyId)->count(),
                 'trainings' => \DB::table('trainings')->where('company_id', $companyId)->count(),
-                'logins' => \DB::table('logins')->where('company_id', $companyId)->count(),
             ];
             return view('dashboard_admin', compact('stats'));
         } else {
@@ -84,7 +81,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('leaves', LeaveController::class);
     Route::resource('salaries', SalaryController::class);
     Route::resource('trainings', TrainingController::class);
-    Route::resource('logins', LoginController::class);
 });
 
 

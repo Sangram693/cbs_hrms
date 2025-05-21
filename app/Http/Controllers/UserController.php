@@ -125,7 +125,6 @@ class UserController extends Controller
             $stats['leaves'] = DB::table('leaves')->count();
             $stats['salaries'] = DB::table('salaries')->count();
             $stats['trainings'] = DB::table('trainings')->count();
-            $stats['logins'] = DB::table('logins')->count();
         } elseif ($companyId) {
             $stats['companies'] = 1;
             $stats['employees'] = DB::table('users')->where('company_id', $companyId)->where('role', 'user')->where('active', true)->count();
@@ -135,7 +134,6 @@ class UserController extends Controller
             $stats['leaves'] = DB::table('leaves')->where('company_id', $companyId)->count();
             $stats['salaries'] = DB::table('salaries')->where('company_id', $companyId)->count();
             $stats['trainings'] = DB::table('trainings')->where('company_id', $companyId)->count();
-            $stats['logins'] = DB::table('logins')->where('company_id', $companyId)->count();
         } else {
             $stats = [
                 'companies' => 0,
@@ -146,7 +144,6 @@ class UserController extends Controller
                 'leaves' => 0,
                 'salaries' => 0,
                 'trainings' => 0,
-                'logins' => 0,
             ];
         }
         return response()->json($stats);

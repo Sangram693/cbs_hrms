@@ -63,9 +63,4 @@ class Employee extends Model
     {
         return $this->hasMany(Training::class);
     }
-
-    public function logins()
-    {
-        return $this->hasMany(Login::class);
-    }
 }

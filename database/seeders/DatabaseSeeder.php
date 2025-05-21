@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             LeaveSeeder::class,
             SalarySeeder::class,
             TrainingSeeder::class,
-            LoginSeeder::class,
+            
         ]);
     }
 }
