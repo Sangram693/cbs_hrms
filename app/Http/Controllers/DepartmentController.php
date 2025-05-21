@@ -9,7 +9,12 @@ class DepartmentController extends Controller
 {
     public function index()
     {
-        $departments = Department::all();
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $departments = Department::all();
+        } else {
+            $departments = Department::where('company_id', $user->company_id)->get();
+        }
         return view('departments.index', compact('departments'));
     }
 

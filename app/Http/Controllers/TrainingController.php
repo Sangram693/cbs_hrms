@@ -10,7 +10,12 @@ class TrainingController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        $trainings = Training::all();
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $trainings = Training::all();
+        } else {
+            $trainings = Training::where('company_id', $user->company_id)->get();
+        }
         return view('trainings.index', compact('trainings'));
     }
 

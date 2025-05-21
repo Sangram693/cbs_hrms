@@ -9,7 +9,12 @@ class PositionController extends Controller
 {
     public function index()
     {
-        $positions = Position::all();
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $positions = Position::all();
+        } else {
+            $positions = Position::where('company_id', $user->company_id)->get();
+        }
         return view('positions.index', compact('positions'));
     }
 

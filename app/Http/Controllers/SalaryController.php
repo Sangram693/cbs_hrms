@@ -10,7 +10,12 @@ class SalaryController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        $salaries = Salary::all();
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $salaries = Salary::all();
+        } else {
+            $salaries = Salary::where('company_id', $user->company_id)->get();
+        }
         return view('salaries.index', compact('salaries'));
     }
 

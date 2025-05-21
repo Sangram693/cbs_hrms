@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-6xl mx-auto mt-12">
-    <div class="text-center py-12 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg shadow-md">
-        <h1 class="text-4xl font-bold mb-4">Super Admin Dashboard</h1>
-        <p class="text-lg font-medium">Welcome, {{ auth()->user()->name }} (Super Admin)!
+<div class="max-w-6xl mx-auto mt-4">
+    <div class="text-center py-6 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold mb-2">Super Admin Dashboard</h1>
+        <p class="text-base font-medium">Welcome, {{ auth()->user()->name }} (Super Admin)!
         </p>
     </div>
-    <div class="bg-gradient-to-br from-green-50 to-teal-100 p-10 rounded-2xl shadow-lg border border-green-200 mt-8">
+    <div class="bg-gradient-to-br from-green-50 to-teal-100 p-4 rounded-2xl shadow-lg border border-green-200 mt-4">
         <div id="dashboard-stats"
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3"
             role="region" aria-label="Dashboard Statistics">
             @php
                 $dashboardStats = [
@@ -26,14 +26,14 @@
             @endphp
             @foreach ($dashboardStats as $stat)
                 <a href="{{ $stat['route'] }}"
-                    class="group block bg-white border border-{{ $stat['color'] }}-200 rounded-xl p-6 shadow hover:shadow-xl transition flex flex-col items-center text-center hover:bg-{{ $stat['color'] }}-50 focus:outline-none focus:ring-2 focus:ring-{{ $stat['color'] }}-500"
+                    class="group block bg-white border border-{{ $stat['color'] }}-200 rounded-xl p-3 shadow hover:shadow-xl transition flex flex-col items-center text-center hover:bg-{{ $stat['color'] }}-50 focus:outline-none focus:ring-2 focus:ring-{{ $stat['color'] }}-500"
                     role="link" aria-label="{{ $stat['label'] }} Statistics">
                     <span
-                        class="text-4xl mb-2 text-{{ $stat['color'] }}-500 group-hover:text-{{ $stat['color'] }}-700">
+                        class="text-2xl mb-1 text-{{ $stat['color'] }}-500 group-hover:text-{{ $stat['color'] }}-700">
                         {{ $stat['icon'] }}</span>
-                    <span class="font-semibold text-{{ $stat['color'] }}-900">{{ $stat['label'] }}</span>
+                    <span class="font-semibold text-{{ $stat['color'] }}-900 text-sm">{{ $stat['label'] }}</span>
                     <span
-                        class="mt-2 text-2xl font-bold text-{{ $stat['color'] }}-700">{{ $stat['count'] }}</span>
+                        class="mt-1 text-xl font-bold text-{{ $stat['color'] }}-700">{{ $stat['count'] }}</span>
                 </a>
             @endforeach
         </div>

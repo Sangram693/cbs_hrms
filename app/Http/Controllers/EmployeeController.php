@@ -9,7 +9,12 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::all();
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $employees = Employee::all();
+        } else {
+            $employees = Employee::where('company_id', $user->company_id)->get();
+        }
         return view('employees.index', compact('employees'));
     }
 
