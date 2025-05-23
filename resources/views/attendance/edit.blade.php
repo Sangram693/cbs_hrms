@@ -7,14 +7,21 @@
         @csrf
         @method('PUT')
         <div class="mb-4">
+            @php
+                $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+            @endphp
             <label class="block mb-1 font-semibold">Employee</label>
-            <select name="employee_id" class="w-full border rounded px-3 py-2" required>
-                <option value="">Select Employee</option>
-                @foreach($employees as $employee)
-                    <option value="{{ $employee->id }}" {{ old('employee_id', $attendance->employee_id) == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
-                @endforeach
-            </select>
-            @error('employee_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || $isHr)
+                <select name="employee_id" class="w-full border rounded px-3 py-2" required>
+                    <option value="">Select Employee</option>
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('employee_id', $attendance->employee_id) == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
+                    @endforeach
+                </select>
+                @error('employee_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            @else
+                <input type="hidden" name="employee_id" value="{{ auth()->user()->employee_id }}">
+            @endif
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Date</label>

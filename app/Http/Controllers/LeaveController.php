@@ -13,15 +13,43 @@ class LeaveController extends Controller
         $user = $request->user();
         if ($user->isSuperAdmin()) {
             $leaves = $query->get();
-        } else {
+        } elseif ($user->isAdmin()) {
             $leaves = $query->where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            // HR: can manage all leaves in their department
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $leaves = $query->whereHas('employee', function($q) use ($hrDepartments) {
+                    $q->whereIn('department_id', $hrDepartments);
+                })->get();
+            } else {
+                // Normal user: only see self
+                $leaves = $query->where('employee_id', $user->employee->id)->get();
+            }
+        } else {
+            $leaves = collect();
         }
         return view('leaves.index', compact('leaves'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('leaves.create');
+        $user = $request->user();
+        if ($user->isSuperAdmin()) {
+            $employees = \App\Models\Employee::all();
+        } elseif ($user->isAdmin()) {
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
+        } else {
+            $employees = collect();
+        }
+        return view('leaves.create', compact('employees'));
     }
 
     public function store(Request $request)
@@ -48,13 +76,43 @@ class LeaveController extends Controller
         return response()->json($leave);
     }
 
-    public function edit(Leave $leave)
+    public function edit(Leave $leave, Request $request)
     {
-        return view('leaves.edit', compact('leave'));
+        $user = $request->user();
+        if ($user->isSuperAdmin()) {
+            $employees = \App\Models\Employee::all();
+        } elseif ($user->isAdmin()) {
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
+        } else {
+            $employees = collect();
+        }
+        return view('leaves.edit', compact('leave', 'employees'));
     }
 
     public function update(Request $request, Leave $leave)
     {
+        $user = $request->user();
+        if ($user->isSuperAdmin()) {
+            $employees = \App\Models\Employee::all();
+        } elseif ($user->isAdmin()) {
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
+        } else {
+            $employees = collect();
+        }
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'company_id' => 'required|exists:companies,id',
@@ -64,7 +122,7 @@ class LeaveController extends Controller
             'status' => 'required|string|max:255',
         ]);
         $leave->update($validated);
-        return redirect()->route('leaves.index')->with('success', 'Leave updated successfully.');
+        return view('leaves.edit', compact('leave', 'employees'))->with('success', 'Leave updated successfully.');
     }
 
     public function destroy($id, Request $request)

@@ -3,8 +3,11 @@
 @section('content')
 <div class="max-w-6xl mx-auto mt-4">
     <div class="text-center py-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md">
-        <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p class="text-base font-medium">Welcome, {{ auth()->user()->name }} (Admin)!</p>
+        @php
+            $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+        @endphp
+        <h1 class="text-3xl font-bold mb-2">{{ $isHr ? 'HR Dashboard' : 'Admin Dashboard' }}</h1>
+        <p class="text-base font-medium">Welcome, {{ auth()->user()->name }} {{ $isHr ? '(HR)' : '(Admin)' }}!</p>
     </div>
     <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-2xl shadow-lg border border-blue-200 mt-4">
         <div id="dashboard-stats" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3" role="region" aria-label="Dashboard Statistics">

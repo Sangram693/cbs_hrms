@@ -17,6 +17,7 @@ class Department extends Model
         'name',
         'description',
         'company_id',
+        'hr_id',
     ];
 
     public function company()
@@ -32,5 +33,10 @@ class Department extends Model
     public function employees()
     {
         return $this->hasMany(Employee::class);
+    }
+    
+    public function hr()
+    {
+        return $this->belongsTo(Employee::class, 'hr_id');
     }
 }

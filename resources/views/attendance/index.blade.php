@@ -7,29 +7,29 @@
     <table class="min-w-full bg-white">
         <thead>
             <tr>
-                <th class="py-2">Employee</th>
-                <th class="py-2">Date</th>
-                <th class="py-2">Check In</th>
-                <th class="py-2">Check Out</th>
-                <th class="py-2">Status</th>
+                <th class="py-2 px-4 text-center">Employee</th>
+                <th class="py-2 px-4 text-center">Date</th>
+                <th class="py-2 px-4 text-center">Check In</th>
+                <th class="py-2 px-4 text-center">Check Out</th>
+                <th class="py-2 px-4 text-center">Status</th>
                 @if(auth()->user()->isSuperAdmin())
-                <th class="py-2">Company</th>
+                <th class="py-2 px-4 text-center">Company</th>
                 @endif
-                <th class="py-2">Actions</th>
+                <th class="py-2 px-4 text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($attendances as $attendance)
             <tr>
-                <td class="py-2">{{ $attendance->employee->name ?? '-' }}</td>
-                <td class="py-2">{{ $attendance->date }}</td>
-                <td class="py-2">{{ $attendance->check_in }}</td>
-                <td class="py-2">{{ $attendance->check_out }}</td>
-                <td class="py-2">{{ $attendance->status }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->employee->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->date }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->check_in }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->check_out }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->status }}</td>
                 @if(auth()->user()->isSuperAdmin())
-                <td class="py-2">{{ $attendance->employee->company->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $attendance->employee->company->name ?? '-' }}</td>
                 @endif
-                <td class="py-2">
+                <td class="py-2 px-4 text-center">
                     <a href="{{ route('attendance.edit', $attendance) }}" class="text-blue-600 hover:underline">Edit</a> |
                     <form action="{{ route('attendance.destroy', $attendance) }}" method="POST" class="inline">
                         @csrf
@@ -40,7 +40,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="py-2 text-center">No attendance records found.</td>
+                <td colspan="6" class="py-2 px-4 text-center">No attendance records found.</td>
             </tr>
             @endforelse
         </tbody>

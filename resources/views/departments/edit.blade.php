@@ -25,6 +25,18 @@
                 <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
             @endif
         </div>
+        @if($employees->count())
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">HR (Employee)</label>
+            <select name="hr_id" class="w-full border rounded px-3 py-2">
+                <option value="">Select HR</option>
+                @foreach($employees as $employee)
+                    <option value="{{ $employee->id }}" {{ old('hr_id', $department->hr_id ?? '') == $employee->id ? 'selected' : '' }}>{{ $employee->name }} ({{ $employee->email }})</option>
+                @endforeach
+            </select>
+            @error('hr_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
+        @endif
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
         <a href="{{ route('departments.index') }}" class="ml-2 text-gray-600">Cancel</a>
     </form>

@@ -7,29 +7,29 @@
     <table class="min-w-full bg-white">
         <thead>
             <tr>
-                <th class="py-2">Employee</th>
-                <th class="py-2">Training Name</th>
-                <th class="py-2">Status</th>
-                <th class="py-2">Start Date</th>
-                <th class="py-2">End Date</th>
+                <th class="py-2 px-4 text-center">Employee</th>
+                <th class="py-2 px-4 text-center">Training Name</th>
+                <th class="py-2 px-4 text-center">Status</th>
+                <th class="py-2 px-4 text-center">Start Date</th>
+                <th class="py-2 px-4 text-center">End Date</th>
                 @if(auth()->user()->isSuperAdmin())
-                <th class="py-2">Company</th>
+                <th class="py-2 px-4 text-center">Company</th>
                 @endif
-                <th class="py-2">Actions</th>
+                <th class="py-2 px-4 text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($trainings as $training)
             <tr>
-                <td class="py-2">{{ $training->employee->name ?? '-' }}</td>
-                <td class="py-2">{{ $training->training_name ?? $training->title }}</td>
-                <td class="py-2">{{ $training->status }}</td>
-                <td class="py-2">{{ $training->start_date ?? $training->date }}</td>
-                <td class="py-2">{{ $training->end_date ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->employee->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->training_name ?? $training->title }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->status }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->start_date ?? $training->date }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->end_date ?? '-' }}</td>
                 @if(auth()->user()->isSuperAdmin())
-                <td class="py-2">{{ $training->employee && $training->employee->company ? $training->employee->company->name : '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $training->employee && $training->employee->company ? $training->employee->company->name : '-' }}</td>
                 @endif
-                <td class="py-2">
+                <td class="py-2 px-4 text-center">
                     <a href="{{ route('trainings.edit', $training) }}" class="text-blue-600 hover:underline">Edit</a> |
                     <form action="{{ route('trainings.destroy', $training) }}" method="POST" class="inline">
                         @csrf
@@ -40,7 +40,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="py-2 text-center">No training records found.</td>
+                <td colspan="6" class="py-2 px-4 text-center">No training records found.</td>
             </tr>
             @endforelse
         </tbody>

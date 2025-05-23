@@ -13,8 +13,19 @@ class SalaryController extends Controller
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
             $salaries = Salary::all();
-        } else {
+        } elseif ($user->isAdmin()) {
             $salaries = Salary::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $salaries = Salary::whereHas('employee', function($q) use ($hrDepartments) {
+                    $q->whereIn('department_id', $hrDepartments);
+                })->get();
+            } else {
+                $salaries = Salary::where('employee_id', $user->employee->id)->get();
+            }
+        } else {
+            $salaries = collect();
         }
         return view('salaries.index', compact('salaries'));
     }
@@ -25,8 +36,17 @@ class SalaryController extends Controller
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
             $employees = \App\Models\Employee::all();
-        } else {
+        } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
+        } else {
+            $employees = collect();
         }
         return view('salaries.create', compact('employees'));
     }

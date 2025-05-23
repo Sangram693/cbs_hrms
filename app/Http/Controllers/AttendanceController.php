@@ -17,8 +17,19 @@ class AttendanceController extends Controller
             $attendances = Attendance::whereHas('employee', function ($q) use ($user) {
                 $q->where('company_id', $user->company_id);
             })->get();
+        } elseif ($user->isUser() && $user->employee) {
+            // HR: can manage all attendance in their department
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $attendances = Attendance::whereHas('employee', function($q) use ($hrDepartments) {
+                    $q->whereIn('department_id', $hrDepartments);
+                })->get();
+            } else {
+                // Normal user: only see self
+                $attendances = Attendance::where('employee_id', $user->employee->id)->get();
+            }
         } else {
-            $attendances = Attendance::where('employee_id', $user->employee_id)->get();
+            $attendances = collect();
         }
         return view('attendance.index', compact('attendances'));
     }
@@ -27,12 +38,19 @@ class AttendanceController extends Controller
     public function create()
     {
         $user = auth()->user();
-        if ($user->isSuperAdmin() || $user->isAdmin()) {
-            $employees = $user->isSuperAdmin()
-                ? \App\Models\Employee::all()
-                : \App\Models\Employee::where('company_id', $user->company_id)->get();
+        if ($user->isSuperAdmin()) {
+            $employees = \App\Models\Employee::all();
+        } elseif ($user->isAdmin()) {
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
         } else {
-            $employees = \App\Models\Employee::where('id', $user->employee_id)->get();
+            $employees = collect();
         }
         return view('attendance.create', compact('employees'));
     }
@@ -68,6 +86,13 @@ class AttendanceController extends Controller
             $employees = $user->isSuperAdmin()
                 ? \App\Models\Employee::all()
                 : \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
         } else {
             $employees = \App\Models\Employee::where('id', $user->employee_id)->get();
         }

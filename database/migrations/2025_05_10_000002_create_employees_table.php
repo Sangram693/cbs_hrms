@@ -22,7 +22,7 @@ return new class extends Migration
             $table->uuid('company_id');
             $table->date('hire_date');
             $table->decimal('salary', 15, 2);
-            $table->string('user_role');
+            $table->enum('user_role', ['employee', 'admin', 'super_admin'])->default('employee');
             $table->string('fingerprint_id')->nullable();
             $table->string('photo')->nullable();
             $table->enum('status', ['Active', 'Inactive', 'Terminated'])->default('Active');

@@ -79,6 +79,20 @@
                                 class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-chalkboard-teacher text-teal-600 h-5 w-5"></i>Trainings</a>
                         </li>
                     @elseif(auth()->check() && auth()->user()->isUser())
+                        @php
+                            $isHr = auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+                        @endphp
+                        @if($isHr)
+                            <li><a href="{{ route('employees.index') }}"
+                                    class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-users text-emerald-600 h-5 w-5"></i>Employees</a>
+                            </li>
+                            <li><a href="{{ route('departments.index') }}"
+                                    class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-sitemap text-yellow-600 h-5 w-5"></i>Departments</a>
+                            </li>
+                            <li><a href="{{ route('positions.index') }}"
+                                    class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-briefcase text-purple-600 h-5 w-5"></i>Positions</a>
+                            </li>
+                        @endif
                         <li><a href="{{ route('attendance.index') }}"
                                 class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-calendar-check text-pink-600 h-5 w-5"></i>Attendance</a>
                         </li>

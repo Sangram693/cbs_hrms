@@ -7,27 +7,27 @@
     <table class="min-w-full bg-white">
         <thead>
             <tr>
-                <th class="py-2">Employee</th>
-                <th class="py-2">Month</th>
-                <th class="py-2">Net Salary</th>
-                <th class="py-2">Paid On</th>
+                <th class="py-2 px-4 text-center">Employee</th>
+                <th class="py-2 px-4 text-center">Month</th>
+                <th class="py-2 px-4 text-center">Net Salary</th>
+                <th class="py-2 px-4 text-center">Paid On</th>
                 @if(auth()->user()->isSuperAdmin())
-                <th class="py-2">Company</th>
+                <th class="py-2 px-4 text-center">Company</th>
                 @endif
-                <th class="py-2">Actions</th>
+                <th class="py-2 px-4 text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($salaries as $salary)
             <tr>
-                <td class="py-2">{{ $salary->employee->name ?? '-' }}</td>
-                <td class="py-2">{{ \Illuminate\Support\Str::substr($salary->date ?? $salary->salary_month, 0, 7) }}</td>
-                <td class="py-2">{{ $salary->net_salary ?? $salary->amount }}</td>
-                <td class="py-2">{{ $salary->paid_on ?? ($salary->date ?? '-') }}</td>
+                <td class="py-2 px-4 text-center">{{ $salary->employee->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ \Illuminate\Support\Str::substr($salary->date ?? $salary->salary_month, 0, 7) }}</td>
+                <td class="py-2 px-4 text-center">{{ $salary->net_salary ?? $salary->amount }}</td>
+                <td class="py-2 px-4 text-center">{{ $salary->paid_on ?? ($salary->date ?? '-') }}</td>
                 @if(auth()->user()->isSuperAdmin())
-                <td class="py-2">{{ $salary->employee && $salary->employee->company ? $salary->employee->company->name : '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $salary->employee && $salary->employee->company ? $salary->employee->company->name : '-' }}</td>
                 @endif
-                <td class="py-2">
+                <td class="py-2 px-4 text-center">
                     <a href="{{ route('salaries.edit', $salary->id) }}" class="text-blue-600 hover:underline">Edit</a> |
                     <form action="{{ route('salaries.destroy', $salary->id) }}" method="POST" class="inline">
                         @csrf
@@ -38,7 +38,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="py-2 text-center">No salary records found.</td>
+                <td colspan="5" class="py-2 px-4 text-center">No salary records found.</td>
             </tr>
             @endforelse
         </tbody>

@@ -7,21 +7,23 @@
     <table class="min-w-full bg-white">
         <thead>
             <tr>
-                <th class="py-2">Title</th>
+                <th class="py-2 px-4 text-center">Title</th>
                 @if(auth()->user()->isSuperAdmin())
-                <th class="py-2">Company</th>
+                <th class="py-2 px-4 text-center">Company</th>
                 @endif
-                <th class="py-2">Actions</th>
+                <th class="py-2 px-4 text-center">Department</th>
+                <th class="py-2 px-4 text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($positions as $position)
             <tr>
-                <td class="py-2">{{ $position->title }}({{ $position->level }})</td>
+                <td class="py-2 px-4 text-center">{{ $position->title }}({{ $position->level }})</td>
                 @if(auth()->user()->isSuperAdmin())
-                <td class="py-2">{{ $position->company->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $position->company->name ?? '-' }}</td>
                 @endif
-                <td class="py-2">
+                <td class="py-2 px-4 text-center">{{ $position->department->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">
                     <a href="{{ route('positions.edit', $position) }}" class="text-blue-600 hover:underline">Edit</a> |
                     <form action="{{ route('positions.destroy', $position) }}" method="POST" class="inline">
                         @csrf
@@ -32,7 +34,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="2" class="py-2 text-center">No positions found.</td>
+                <td colspan="2" class="py-2 px-4 text-center">No positions found.</td>
             </tr>
             @endforelse
         </tbody>

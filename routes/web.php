@@ -55,18 +55,35 @@ Route::middleware('auth')->group(function () {
                 'trainings' => \DB::table('trainings')->count(),
             ];
             return view('dashboard_superadmin', compact('stats'));
-        } elseif ($user->role === 'admin') {
-            $companyId = $user->company_id;
-            $stats = [
-                'companies' => 1,
-                'employees' => \DB::table('users')->where('company_id', $companyId)->where('role', 'user')->where('active', true)->count(),
-                'departments' => \DB::table('departments')->where('company_id', $companyId)->count(),
-                'positions' => \DB::table('positions')->where('company_id', $companyId)->count(),
-                'attendance' => \DB::table('attendances')->where('company_id', $companyId)->count(),
-                'leaves' => \DB::table('leaves')->where('company_id', $companyId)->count(),
-                'salaries' => \DB::table('salaries')->where('company_id', $companyId)->count(),
-                'trainings' => \DB::table('trainings')->where('company_id', $companyId)->count(),
-            ];
+        } elseif ($user->role === 'admin' || ($user->role === 'user' && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists())) {
+            // Admin or HR (which is a user with employee record assigned as hr_id in any department)
+            if ($user->role === 'admin') {
+                $companyId = $user->company_id;
+                $stats = [
+                    'companies' => 1,
+                    'employees' => \DB::table('users')->where('company_id', $companyId)->where('role', 'user')->where('active', true)->count(),
+                    'departments' => \DB::table('departments')->where('company_id', $companyId)->count(),
+                    'positions' => \DB::table('positions')->where('company_id', $companyId)->count(),
+                    'attendance' => \DB::table('attendances')->where('company_id', $companyId)->count(),
+                    'leaves' => \DB::table('leaves')->where('company_id', $companyId)->count(),
+                    'salaries' => \DB::table('salaries')->where('company_id', $companyId)->count(),
+                    'trainings' => \DB::table('trainings')->where('company_id', $companyId)->count(),
+                ];
+            } else {
+                // HR: show admin-style dashboard, but scoped to their department(s)
+                $employee = $user->employee;
+                $departmentIds = $employee ? \App\Models\Department::where('hr_id', $employee->id)->pluck('id') : collect();
+                $stats = [
+                    'companies' => 1,
+                    'employees' => $departmentIds->count() ? \App\Models\Employee::whereIn('department_id', $departmentIds)->count() : 0,
+                    'departments' => $departmentIds->count(),
+                    'positions' => $departmentIds->count() ? \App\Models\Position::whereIn('department_id', $departmentIds)->count() : 0,
+                    'attendance' => $departmentIds->count() ? \App\Models\Attendance::whereHas('employee', function($q) use ($departmentIds) { $q->whereIn('department_id', $departmentIds); })->count() : 0,
+                    'leaves' => $departmentIds->count() ? \App\Models\Leave::whereHas('employee', function($q) use ($departmentIds) { $q->whereIn('department_id', $departmentIds); })->count() : 0,
+                    'salaries' => $departmentIds->count() ? \App\Models\Salary::whereHas('employee', function($q) use ($departmentIds) { $q->whereIn('department_id', $departmentIds); })->count() : 0,
+                    'trainings' => $departmentIds->count() ? \App\Models\Training::whereHas('employee', function($q) use ($departmentIds) { $q->whereIn('department_id', $departmentIds); })->count() : 0,
+                ];
+            }
             return view('dashboard_admin', compact('stats'));
         } else {
             return view('dashboard_user');

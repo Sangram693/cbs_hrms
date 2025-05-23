@@ -7,27 +7,27 @@
     <table class="min-w-full bg-white">
         <thead>
             <tr>
-                <th class="py-2">Name</th>
-                <th class="py-2">Email</th>
-                <th class="py-2">Department</th>
-                <th class="py-2">Position</th>
+                <th class="py-2 px-4 text-center">Name</th>
+                <th class="py-2 px-4 text-center">Email</th>
+                <th class="py-2 px-4 text-center">Department</th>
+                <th class="py-2 px-4 text-center">Position</th>
                 @if(auth()->user()->isSuperAdmin())
-                <th class="py-2">Company</th>
+                <th class="py-2 px-4 text-center">Company</th>
                 @endif
-                <th class="py-2">Actions</th>
+                <th class="py-2 px-4 text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($employees as $employee)
             <tr>
-                <td class="py-2">{{ $employee->name }}</td>
-                <td class="py-2">{{ $employee->email }}</td>
-                <td class="py-2">{{ $employee->department->name ?? '-' }}</td>
-                <td class="py-2">{{ $employee->position->title }}({{ $employee->position->level }})</td>
+                <td class="py-2 px-4 text-center">{{ $employee->name }}</td>
+                <td class="py-2 px-4 text-center">{{ $employee->email }}</td>
+                <td class="py-2 px-4 text-center">{{ $employee->department->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $employee->position->title }}({{ $employee->position->level }})</td>
                 @if(auth()->user()->isSuperAdmin())
-                <td class="py-2">{{ $employee->company->name ?? '-' }}</td>
+                <td class="py-2 px-4 text-center">{{ $employee->company->name ?? '-' }}</td>
                 @endif
-                <td class="py-2">
+                <td class="py-2 px-4 text-center">
                     <a href="{{ route('employees.edit', $employee) }}" class="text-blue-600 hover:underline">Edit</a> |
                     <form action="{{ route('employees.destroy', $employee) }}" method="POST" class="inline">
                         @csrf
@@ -38,7 +38,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="py-2 text-center">No employees found.</td>
+                <td colspan="6" class="py-2 px-4 text-center">No employees found.</td>
             </tr>
             @endforelse
         </tbody>

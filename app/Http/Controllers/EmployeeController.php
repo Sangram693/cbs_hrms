@@ -12,8 +12,19 @@ class EmployeeController extends Controller
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
             $employees = Employee::all();
-        } else {
+        } elseif ($user->isAdmin()) {
             $employees = Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            // HR: can manage all employees in their department
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                // Normal user: only see self
+                $employees = Employee::where('id', $user->employee->id)->get();
+            }
+        } else {
+            $employees = collect();
         }
         return view('employees.index', compact('employees'));
     }
@@ -43,15 +54,26 @@ class EmployeeController extends Controller
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
             'company_id' => 'required|exists:companies,id',
+            'user_role' => 'required|in:employee,admin,super_admin',
             // Add other fields as needed
         ]);
         $validated['id'] = \Illuminate\Support\Str::uuid();
         $validated['emp_id'] = 'EMP-' . strtoupper(substr($validated['name'], 0, 3)) . '-' . uniqid();
         $validated['hire_date'] = now()->toDateString();
         $validated['salary'] = 0;
-        $validated['user_role'] = 'employee';
+        $validated['user_role'] = $request->input('user_role', 'employee');
         $validated['status'] = 'Active';
         Employee::create($validated);
+        // Sync to User table
+        \App\Models\User::create([
+            'id' => $validated['id'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => 'password', // Set a default or generate/send password
+            'role' => $validated['user_role'] === 'employee' ? 'user' : $validated['user_role'],
+            'company_id' => $validated['company_id'],
+            'active' => true,
+        ]);
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
 
@@ -80,9 +102,21 @@ class EmployeeController extends Controller
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
             'company_id' => 'required|exists:companies,id',
+            'user_role' => 'required|in:employee,admin,super_admin',
             // Add other fields as needed
         ]);
+        $validated['user_role'] = $request->input('user_role', $employee->user_role ?? 'employee');
         $employee->update($validated);
+        // Sync to User table
+        $user = \App\Models\User::find($employee->id);
+        if ($user) {
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['user_role'] === 'employee' ? 'user' : $validated['user_role'],
+                'company_id' => $validated['company_id'],
+            ]);
+        }
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
     }
 
