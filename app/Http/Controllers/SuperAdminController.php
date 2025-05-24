@@ -81,7 +81,6 @@ class SuperAdminController extends Controller
 
     try {
         $company = Company::create([
-            'id' => Str::uuid(),
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone

@@ -58,7 +58,6 @@ class AdminController extends Controller
 
         // Create a new employee user under the admin's company
         $newUser = User::create([
-            'id' => Str::uuid(),
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,

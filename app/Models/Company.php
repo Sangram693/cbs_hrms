@@ -30,4 +30,14 @@ class Company extends Model
 
         return $user->company()->get(); // Admin can only access their own company
     }
+    
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 }

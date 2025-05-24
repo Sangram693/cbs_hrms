@@ -61,7 +61,6 @@ class PositionController extends Controller
             $rules['company_id'] = 'required|exists:companies,id';
         }
         $validated = $request->validate($rules);
-        $validated['id'] = \Illuminate\Support\Str::uuid();
         if ($isSuperAdmin) {
             // ...existing code...
         } elseif ($user->isAdmin()) {

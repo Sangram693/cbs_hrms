@@ -40,7 +40,6 @@ class DepartmentController extends Controller
         }
         $rules['hr_id'] = 'nullable|exists:employees,id';
         $validated = $request->validate($rules);
-        $validated['id'] = \Illuminate\Support\Str::uuid();
         if (!$isSuperAdmin) {
             $validated['company_id'] = $user->company_id;
         }

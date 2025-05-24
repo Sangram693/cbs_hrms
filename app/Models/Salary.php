@@ -24,6 +24,16 @@ class Salary extends Model
         'company_id',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);

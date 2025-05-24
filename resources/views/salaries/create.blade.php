@@ -59,13 +59,20 @@
         </div>
         <input type="hidden" name="net_salary" id="net_salary" value="">
         <script>
-        // Auto-calculate net salary before submit
+        // Auto-calculate net salary before submit and auto-fill base salary on employee select
         document.addEventListener('DOMContentLoaded', function() {
             const base = document.querySelector('input[name=base_salary]');
             const bonus = document.querySelector('input[name=bonus]');
             const deductions = document.querySelector('input[name=deductions]');
             const net = document.getElementById('net_salary');
             const form = document.querySelector('form');
+            const employeeSelect = document.querySelector('select[name=employee_id]');
+            // Prepare employee salary map
+            const employeeSalaries = {
+                @foreach($employees as $employee)
+                    '{{ $employee->id }}': {{ $employee->salary ?? 0 }},
+                @endforeach
+            };
             function calcNet() {
                 const b = parseFloat(base.value) || 0;
                 const bo = parseFloat(bonus.value) || 0;
@@ -75,6 +82,16 @@
             [base, bonus, deductions].forEach(i => i.addEventListener('input', calcNet));
             form.addEventListener('submit', calcNet);
             calcNet();
+            // Auto-fill base salary when employee changes
+            if (employeeSelect) {
+                employeeSelect.addEventListener('change', function() {
+                    const selectedId = this.value;
+                    if (employeeSalaries[selectedId] !== undefined) {
+                        base.value = employeeSalaries[selectedId];
+                        calcNet();
+                    }
+                });
+            }
         });
         </script>
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>

@@ -36,37 +36,30 @@ class LeaveController extends Controller
     {
         $user = $request->user();
         if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
-        } elseif ($user->isAdmin()) {
-            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
-        } elseif ($user->isUser() && $user->employee) {
-            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
-            if ($hrDepartments->count() > 0) {
-                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
-            } else {
-                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
-            }
+            $companyId = $request->input('company_id');
         } else {
-            $employees = collect();
+            $companyId = $user->company_id;
         }
-        return view('leaves.create', compact('employees'));
+        $employees = $user->isSuperAdmin() || $user->isAdmin() || $user->isHr()
+            ? \App\Models\Employee::where('company_id', $companyId)->get()
+            : [$user->employee];
+        $leaveTypes = $companyId ? \App\Models\LeaveType::where('company_id', $companyId)->get() : collect();
+        return view('leaves.create', compact('employees', 'leaveTypes'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'employee_id' => 'required|integer|exists:employees,id',
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
             'leave_type' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
-            'status' => 'required|string',
             'approved_by' => 'nullable|integer|exists:employees,id',
         ]);
-        Leave::create(array_merge(
-            $request->only(['employee_id','leave_type','start_date','end_date','reason','status','approved_by']),
-            ['company_id' => $request->user()->company_id]
-        ));
+        $validated['company_id'] = $request->user()->company_id;
+        $validated['status'] = 'Pending';
+        Leave::create($validated);
         return redirect()->route('leaves.index')->with('success', 'Leave created successfully.');
     }
 
@@ -81,8 +74,10 @@ class LeaveController extends Controller
         $user = $request->user();
         if ($user->isSuperAdmin()) {
             $employees = \App\Models\Employee::all();
+            $companyId = $leave->company_id;
         } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+            $companyId = $user->company_id;
         } elseif ($user->isUser() && $user->employee) {
             $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
             if ($hrDepartments->count() > 0) {
@@ -90,10 +85,13 @@ class LeaveController extends Controller
             } else {
                 $employees = collect([\App\Models\Employee::find($user->employee->id)]);
             }
+            $companyId = $user->company_id;
         } else {
             $employees = collect();
+            $companyId = null;
         }
-        return view('leaves.edit', compact('leave', 'employees'));
+        $leaveTypes = $companyId ? \App\Models\LeaveType::where('company_id', $companyId)->get() : collect();
+        return view('leaves.edit', compact('leave', 'employees', 'leaveTypes'));
     }
 
     public function update(Request $request, Leave $leave)

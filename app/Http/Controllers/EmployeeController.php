@@ -51,22 +51,23 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email',
+            'emp_id' => 'required|string|unique:employees,emp_id',
+            'phone' => 'nullable|string|max:255',
+            'salary' => 'required|numeric|min:0',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
             'company_id' => 'required|exists:companies,id',
             'user_role' => 'required|in:employee,admin,super_admin',
+            'fingerprint_id' => 'required|string|unique:employees,fingerprint_id',
             // Add other fields as needed
         ]);
-        $validated['id'] = \Illuminate\Support\Str::uuid();
-        $validated['emp_id'] = 'EMP-' . strtoupper(substr($validated['name'], 0, 3)) . '-' . uniqid();
         $validated['hire_date'] = now()->toDateString();
-        $validated['salary'] = 0;
         $validated['user_role'] = $request->input('user_role', 'employee');
         $validated['status'] = 'Active';
-        Employee::create($validated);
+        $employee = Employee::create($validated);
         // Sync to User table
         \App\Models\User::create([
-            'id' => $validated['id'],
+            'id' => $employee->id,
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => 'password', // Set a default or generate/send password
@@ -99,10 +100,14 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'emp_id' => 'required|string|unique:employees,emp_id,' . $employee->id,
+            'phone' => 'nullable|string|max:255',
+            'salary' => 'required|numeric|min:0',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
             'company_id' => 'required|exists:companies,id',
             'user_role' => 'required|in:employee,admin,super_admin',
+            'fingerprint_id' => 'nullable|string|max:255|unique:employees,fingerprint_id,' . $employee->id,
             // Add other fields as needed
         ]);
         $validated['user_role'] = $request->input('user_role', $employee->user_role ?? 'employee');

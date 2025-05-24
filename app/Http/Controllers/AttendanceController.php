@@ -73,7 +73,6 @@ class AttendanceController extends Controller
             $employee = \App\Models\Employee::find($validated['employee_id']);
             $validated['company_id'] = $employee ? $employee->company_id : $user->company_id;
         }
-        $validated['id'] = \Illuminate\Support\Str::uuid();
         Attendance::create($validated);
         return redirect()->route('attendance.index')->with('success', 'Attendance created successfully.');
     }

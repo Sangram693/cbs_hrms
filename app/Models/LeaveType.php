@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
-class Training extends Model
+class LeaveType extends Model
 {
     use HasFactory;
 
@@ -13,13 +14,7 @@ class Training extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
-        'employee_id',
-        'training_name',
-        'status',
-        'start_date',
-        'end_date',
-        'company_id',
+        'id', 'name', 'company_id',
     ];
 
     protected static function boot()
@@ -27,14 +22,9 @@ class Training extends Model
         parent::boot();
         static::creating(function ($model) {
             if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
+                $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
-    }
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
     }
 
     public function company()

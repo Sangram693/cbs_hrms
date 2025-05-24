@@ -98,6 +98,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('leaves', LeaveController::class)->parameters(['leaves' => 'leave']);
     Route::resource('salaries', SalaryController::class);
     Route::resource('trainings', TrainingController::class);
+    Route::resource('leavetypes', App\Http\Controllers\LeaveTypeController::class);
 
     // Add this route for changing leave status
     Route::post('/leaves/{leave}/change-status', [App\Http\Controllers\LeaveController::class, 'changeStatus'])->name('leaves.changeStatus');

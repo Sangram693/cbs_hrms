@@ -82,4 +82,14 @@ class User extends Authenticatable
         if (!$employee) return false;
         return \App\Models\Department::where('hr_id', $employee->id)->exists();
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 }

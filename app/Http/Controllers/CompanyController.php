@@ -36,7 +36,6 @@ class CompanyController extends Controller
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
         ]);
-        $validated['id'] = Str::uuid();
         Company::create($validated);
         return redirect()->route('companies.index')->with('success', 'Company created successfully.');
     }

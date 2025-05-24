@@ -3,26 +3,32 @@
 @section('content')
     <div class="bg-white p-6 rounded shadow">
         <h2 class="text-xl font-bold mb-4">Leaves</h2>
-        <a href="{{ route('leaves.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">Add
-            Leave</a>
-        <table class="min-w-full bg-white">
+        <div class="mb-4 flex flex-row justify-between items-center">
+            <a href="{{ route('leaves.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded inline-block">Add Leave</a>
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
+            <a href="{{ route('leavetypes.index', auth()->user()->isSuperAdmin() ? ['company_id'=>request('company_id')] : []) }}" class="bg-green-500 text-white px-3 py-1 rounded inline-block ml-4">
+                <i class="fas fa-list mr-1"></i> Manage Leave Types
+            </a>
+            @endif
+        </div>
+        <table class="min-w-full bg-white border border-gray-300">
             <thead>
-                <tr>
-                    <th class="py-2 px-4 text-center">Employee</th>
-                    <th class="py-2 px-4 text-center">Type</th>
-                    <th class="py-2 px-4 text-center">From</th>
-                    <th class="py-2 px-4 text-center">To</th>
-                    <th class="py-2 px-4 text-center">Status</th>
+                <tr class="border-b border-gray-300 bg-gray-100">
+                    <th class="py-2 px-4 text-center border-r border-gray-300">Employee</th>
+                    <th class="py-2 px-4 text-center border-r border-gray-300">Type</th>
+                    <th class="py-2 px-4 text-center border-r border-gray-300">From</th>
+                    <th class="py-2 px-4 text-center border-r border-gray-300">To</th>
+                    <th class="py-2 px-4 text-center border-r border-gray-300">Status</th>
                     @if (auth()->user()->isSuperAdmin())
-                        <th class="py-2 px-4 text-center">Company</th>
+                        <th class="py-2 px-4 text-center border-r border-gray-300">Company</th>
                     @endif
-                    <th class="py-2 px-4 text-center">Actions</th>
+                    <th class="py-2 px-4 text-center border-r border-gray-300">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($leaves as $leave)
-                    <tr>
-                        <td class="py-2 px-4 text-center">
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2 px-4 text-center border-r border-gray-300">
                             @if($leave->employee)
                                 <div>{{ $leave->employee->name }}</div>
                                 @if($leave->employee->emp_id)
@@ -32,10 +38,10 @@
                                 No employee found
                             @endif
                         </td>
-                        <td class="py-2 px-4 text-center">{{ $leave->leave_type }}</td>
-                        <td class="py-2 px-4 text-center">{{ $leave->start_date }}</td>
-                        <td class="py-2 px-4 text-center">{{ $leave->end_date }}</td>
-                        <td class="py-2 px-4 text-center">
+                        <td class="py-2 px-4 text-center border-r border-gray-300">{{ $leave->leave_type }}</td>
+                        <td class="py-2 px-4 text-center border-r border-gray-300">{{ $leave->start_date }}</td>
+                        <td class="py-2 px-4 text-center border-r border-gray-300">{{ $leave->end_date }}</td>
+                        <td class="py-2 px-4 text-center border-r border-gray-300">
                             @php
                                 $statusColor =
                                     [
@@ -51,25 +57,35 @@
                             </span>
                         </td>
                         @if (auth()->user()->isSuperAdmin())
-                            <td class="py-2 px-4 text-center">
+                            <td class="py-2 px-4 text-center border-r border-gray-300">
                                 {{ $leave->employee && $leave->employee->company ? $leave->employee->company->name : '-' }}
                             </td>
                         @endif
-                        <td class="py-2 px-4 text-center">
-                            <a href="{{ route('leaves.edit', $leave->id) }}" class="text-blue-600 hover:underline">Edit</a>
-                            |
-                            <form action="{{ route('leaves.destroy', $leave->id) }}" method="POST" class="inline"
-                                onsubmit="return confirm('Are you sure you want to delete this leave?');">
+                        <td class="py-2 px-4 text-center border-r border-gray-300">
+                            @if(
+                                auth()->user()->isSuperAdmin() ||
+                                auth()->user()->isAdmin() ||
+                                auth()->user()->isHr() ||
+                                (auth()->user()->isUser() && $leave->status === 'Pending' && $leave->employee && $leave->employee->id === auth()->user()->employee->id)
+                            )
+                                <a href="{{ route('leaves.edit', $leave->id) }}" class="text-blue-600 hover:text-blue-800 mr-2" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            @endif
+                            @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
+                            <form action="{{ route('leaves.destroy', $leave->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this leave?');" style="display:inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
-                                    class="text-red-600 hover:underline bg-transparent border-none p-0 m-0 cursor-pointer">Delete</button>
+                                <button type="submit" class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 m-0 cursor-pointer" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="py-2 px-4 text-center">No leave records found.</td>
+                        <td colspan="6" class="py-2 px-4 text-center border-t border-gray-300">No leave records found.</td>
                     </tr>
                 @endforelse
             </tbody>

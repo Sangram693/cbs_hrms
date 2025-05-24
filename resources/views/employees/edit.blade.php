@@ -55,6 +55,28 @@
             </select>
             @error('user_role')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Employee ID</label>
+            <input type="text" name="emp_id" class="w-full border rounded px-3 py-2" value="{{ old('emp_id', $employee->emp_id) }}" required>
+            @error('emp_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Phone</label>
+            <input type="text" name="phone" class="w-full border rounded px-3 py-2" value="{{ old('phone', $employee->phone) }}">
+            @error('phone')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Salary</label>
+            <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary', $employee->salary) }}" step="0.01" min="0" required>
+            @error('salary')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
+        <div class="mb-4">
+            <label for="fingerprint_id" class="block text-gray-700 font-semibold mb-2">Fingerprint ID</label>
+            <input type="text" name="fingerprint_id" id="fingerprint_id" value="{{ old('fingerprint_id', $employee->fingerprint_id) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+            @error('fingerprint_id')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
         <a href="{{ route('employees.index') }}" class="ml-2 text-gray-600">Cancel</a>
     </form>

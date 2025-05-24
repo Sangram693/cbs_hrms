@@ -28,22 +28,8 @@
             <label class="block mb-1 font-semibold">Type</label>
             <select name="leave_type" class="w-full border rounded px-3 py-2" required>
                 <option value="">Select Type</option>
-                @php
-                    $leaveTypes = [
-                        'Annual Leave',
-                        'Sick Leave',
-                        'Maternity Leave',
-                        'Paternity Leave',
-                        'Casual Leave',
-                        'Unpaid Leave',
-                        'Emergency Leave',
-                        'Compensatory Leave',
-                        'Bereavement Leave',
-                        'Study Leave',
-                    ];
-                @endphp
                 @foreach($leaveTypes as $leaveType)
-                    <option value="{{ $leaveType }}" {{ old('leave_type', $leave->leave_type ?? $leave->type ?? null) == $leaveType ? 'selected' : '' }}>{{ $leaveType }}</option>
+                    <option value="{{ $leaveType->name }}" {{ old('leave_type', $leave->leave_type ?? $leave->type ?? null) == $leaveType->name ? 'selected' : '' }}>{{ $leaveType->name }}</option>
                 @endforeach
             </select>
             @error('leave_type')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror

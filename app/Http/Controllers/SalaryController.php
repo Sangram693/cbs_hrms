@@ -66,12 +66,12 @@ class SalaryController extends Controller
         if (isset($validated['salary_month']) && strlen($validated['salary_month']) === 7) {
             $validated['salary_month'] .= '-01';
         }
+        $validated['bonus'] = $validated['bonus'] ?? 0;
         $validated['deductions'] = $validated['deductions'] ?? 0;
         $validated['net_salary'] = ($validated['base_salary'] ?? 0) + ($validated['bonus'] ?? 0) - ($validated['deductions'] ?? 0);
         $validated['company_id'] = auth()->user()->isSuperAdmin()
             ? ($request->company_id ?? null)
             : auth()->user()->company_id;
-        $validated['id'] = \Illuminate\Support\Str::uuid();
         Salary::create($validated);
         return redirect()->route('salaries.index')->with('success', 'Salary created successfully.');
     }
