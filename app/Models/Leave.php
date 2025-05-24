@@ -9,6 +9,9 @@ class Leave extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'employee_id',
         'leave_type',
@@ -33,5 +36,10 @@ class Leave extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'id';
     }
 }

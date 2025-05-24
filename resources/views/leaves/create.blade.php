@@ -7,19 +7,11 @@
         @csrf
         <div class="mb-4">
             @php
-                $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+                $user = auth()->user();
+                $isHr = $user->isHr();
             @endphp
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin())
-                <label class="block mb-1 font-semibold">Employee</label>
-                <select name="employee_id" class="w-full border rounded px-3 py-2" required>
-                    <option value="">Select Employee</option>
-                    @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
-                    @endforeach
-                </select>
-                @error('employee_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
-            @elseif($isHr)
-                <label class="block mb-1 font-semibold">Employee</label>
+            <label class="block mb-1 font-semibold">Employee</label>
+            @if($user->isSuperAdmin() || $user->isAdmin() || $isHr)
                 <select name="employee_id" class="w-full border rounded px-3 py-2" required>
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
@@ -33,8 +25,27 @@
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Type</label>
-            <input type="text" name="type" class="w-full border rounded px-3 py-2" value="{{ old('type') }}" required>
-            @error('type')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            <select name="leave_type" class="w-full border rounded px-3 py-2" required>
+                <option value="">Select Type</option>
+                @php
+                    $leaveTypes = [
+                        'Annual Leave',
+                        'Sick Leave',
+                        'Maternity Leave',
+                        'Paternity Leave',
+                        'Casual Leave',
+                        'Unpaid Leave',
+                        'Emergency Leave',
+                        'Compensatory Leave',
+                        'Bereavement Leave',
+                        'Study Leave',
+                    ];
+                @endphp
+                @foreach($leaveTypes as $leaveType)
+                    <option value="{{ $leaveType }}" {{ old('leave_type', $leave->leave_type ?? $leave->type ?? null) == $leaveType ? 'selected' : '' }}>{{ $leaveType }}</option>
+                @endforeach
+            </select>
+            @error('leave_type')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">From</label>
@@ -47,14 +58,9 @@
             @error('to')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Status</label>
-            <select name="status" class="w-full border rounded px-3 py-2" required>
-                <option value="">Select Status</option>
-                <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                <option value="Approved" {{ old('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
-                <option value="Rejected" {{ old('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-            </select>
-            @error('status')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            <label class="block mb-1 font-semibold">Reason</label>
+            <textarea name="reason" class="w-full border rounded px-3 py-2" required>{{ old('reason') }}</textarea>
+            @error('reason')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
         <a href="{{ route('leaves.index') }}" class="ml-2 text-gray-600">Cancel</a>

@@ -72,4 +72,14 @@ class User extends Authenticatable
     {
         return $this->role === 'super_admin';
     }
+
+    /**
+     * Check if the user is HR for any department.
+     */
+    public function isHr(): bool
+    {
+        $employee = $this->employee;
+        if (!$employee) return false;
+        return \App\Models\Department::where('hr_id', $employee->id)->exists();
+    }
 }

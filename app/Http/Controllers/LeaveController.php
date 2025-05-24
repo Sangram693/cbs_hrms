@@ -59,7 +59,7 @@ class LeaveController extends Controller
             'leave_type' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'nullable|string',
+            'reason' => 'required|string',
             'status' => 'required|string',
             'approved_by' => 'nullable|integer|exists:employees,id',
         ]);
@@ -118,11 +118,12 @@ class LeaveController extends Controller
             'company_id' => 'required|exists:companies,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'type' => 'required|string|max:255',
+            'leave_type' => 'required|string|max:255',
             'status' => 'required|string|max:255',
+            'reason' => 'required|string',
         ]);
         $leave->update($validated);
-        return view('leaves.edit', compact('leave', 'employees'))->with('success', 'Leave updated successfully.');
+        return redirect()->route('leaves.index')->with('success', 'Leave updated successfully.');
     }
 
     public function destroy($id, Request $request)
@@ -130,5 +131,20 @@ class LeaveController extends Controller
         $leave = Leave::where('company_id', $request->user()->company_id)->findOrFail($id);
         $leave->delete();
         return redirect()->route('leaves.index')->with('success', 'Leave deleted successfully.');
+    }
+
+    // Add this method to allow admin and HR to change leave status
+    public function changeStatus(Request $request, Leave $leave)
+    {
+        $user = $request->user();
+        if (!($user->isSuperAdmin() || $user->isAdmin() || $user->isHR())) {
+            abort(403, 'Unauthorized');
+        }
+        $request->validate([
+            'status' => 'required|in:Pending,Approved,Rejected',
+        ]);
+        $leave->status = $request->status;
+        $leave->save();
+        return redirect()->route('leaves.index')->with('success', 'Leave status updated successfully.');
     }
 }

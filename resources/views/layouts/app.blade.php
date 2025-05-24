@@ -80,7 +80,8 @@
                         </li>
                     @elseif(auth()->check() && auth()->user()->isUser())
                         @php
-                            $isHr = auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+                            $user = auth()->user();
+                            $isHr = $user->isHr();
                         @endphp
                         @if($isHr)
                             <li><a href="{{ route('employees.index') }}"
@@ -256,6 +257,7 @@
         }
         // Removed SPA navigation logic. All navigation is now handled by default browser behavior.
     </script>
+    @yield('scripts')
 </body>
 
 </html>

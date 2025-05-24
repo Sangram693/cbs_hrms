@@ -28,7 +28,7 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $isHr = $user->isUser() && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists();
+        $isHr = $user->isHr();
         $companies = $isSuperAdmin ? \App\Models\Company::all() : null;
         if ($isSuperAdmin) {
             $departments = \App\Models\Department::all();
@@ -51,7 +51,7 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $isHr = $user->isUser() && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists();
+        $isHr = $user->isHr();
         $rules = [
             'title' => 'required|string|max:255',
             'level' => 'required|string|max:255',
@@ -81,7 +81,7 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $isHr = $user->isUser() && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists();
+        $isHr = $user->isHr();
         $companies = $isSuperAdmin ? \App\Models\Company::all() : null;
         if ($isSuperAdmin) {
             $departments = \App\Models\Department::all();
@@ -103,7 +103,7 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $isHr = $user->isUser() && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists();
+        $isHr = $user->isHr();
         $rules = [
             'title' => 'required|string|max:255',
             'level' => 'required|string|max:255',
@@ -132,7 +132,7 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $isHr = $user->isUser() && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists();
+        $isHr = $user->isHr();
         if ($isSuperAdmin) {
             $position->delete();
         } elseif ($user->isAdmin()) {

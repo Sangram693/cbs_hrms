@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     // Role-based dashboard route
     Route::get('/dashboard', function () {
         $user = auth()->user();
-        if ($user->role === 'super_admin') {
+        if ($user->isSuperAdmin()) {
             // Compute stats for superadmin
             $stats = [
                 'companies' => \DB::table('companies')->count(),
@@ -55,9 +55,9 @@ Route::middleware('auth')->group(function () {
                 'trainings' => \DB::table('trainings')->count(),
             ];
             return view('dashboard_superadmin', compact('stats'));
-        } elseif ($user->role === 'admin' || ($user->role === 'user' && $user->employee && \App\Models\Department::where('hr_id', $user->employee->id)->exists())) {
+        } elseif ($user->isAdmin() || $user->isHr()) {
             // Admin or HR (which is a user with employee record assigned as hr_id in any department)
-            if ($user->role === 'admin') {
+            if ($user->isAdmin()) {
                 $companyId = $user->company_id;
                 $stats = [
                     'companies' => 1,
@@ -95,9 +95,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('departments', DepartmentController::class);
     Route::resource('positions', PositionController::class);
     Route::resource('attendance', AttendanceController::class);
-    Route::resource('leaves', LeaveController::class);
+    Route::resource('leaves', LeaveController::class)->parameters(['leaves' => 'leave']);
     Route::resource('salaries', SalaryController::class);
     Route::resource('trainings', TrainingController::class);
+
+    // Add this route for changing leave status
+    Route::post('/leaves/{leave}/change-status', [App\Http\Controllers\LeaveController::class, 'changeStatus'])->name('leaves.changeStatus');
 });
 
 

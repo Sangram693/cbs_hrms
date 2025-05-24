@@ -4,7 +4,7 @@
 <div class="max-w-6xl mx-auto mt-4">
     <div class="text-center py-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md">
         @php
-            $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+            $isHr = auth()->user()->isHr();
         @endphp
         <h1 class="text-3xl font-bold mb-2">{{ $isHr ? 'HR Dashboard' : 'Admin Dashboard' }}</h1>
         <p class="text-base font-medium">Welcome, {{ auth()->user()->name }} {{ $isHr ? '(HR)' : '(Admin)' }}!</p>

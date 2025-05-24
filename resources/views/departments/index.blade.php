@@ -4,7 +4,8 @@
 <div class="bg-white p-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4">Departments</h2>
     @php
-        $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+        $user = auth()->user();
+        $isHr = $user->isHr();
     @endphp
     @if(!$isHr)
     <a href="{{ route('departments.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">Add Department</a>

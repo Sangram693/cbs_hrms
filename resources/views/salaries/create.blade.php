@@ -7,9 +7,10 @@
         @csrf
         <div class="mb-4">
             @php
-                $isHr = auth()->user()->role === 'user' && auth()->user()->employee && \App\Models\Department::where('hr_id', auth()->user()->employee->id)->exists();
+                $user = auth()->user();
+                $isHr = $user->isHr();
             @endphp
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin())
+            @if($user->isSuperAdmin() || $user->isAdmin())
                 <label class="block mb-1 font-semibold">Employee</label>
                 <select name="employee_id" class="w-full border rounded px-3 py-2" required>
                     <option value="">Select Employee</option>
