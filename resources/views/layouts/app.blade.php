@@ -17,9 +17,9 @@
         <aside
             class="hidden lg:flex flex-col w-64 bg-white/90 border-r border-blue-100 shadow-lg py-8 px-4 sticky top-0 h-screen">
             <div class="flex flex-col items-center mb-8 px-2">
-                <div class="p-2 bg-blue-50 rounded-full mb-2">
+                <div class="mb-2">
                     <img src="https://cbsiot.live/assate/images/cbsiotlogo.svg" alt="cbsiot.live Logo"
-                        class="h-12 w-auto rounded-full shadow">
+                        class="h-12 w-auto ">
                 </div>
                 <span class="text-2xl font-extrabold tracking-tight text-blue-900">HRMS</span>
             </div>
@@ -126,7 +126,7 @@
                 class="lg:hidden bg-white/90 shadow border-b border-blue-100 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('images/CBS IOT PNG.png') }}" alt="cbsiot.live Logo"
-                        class="h-8 w-auto rounded-full shadow">
+                        class="h-8 w-auto ">
                     <span class="text-xl font-extrabold tracking-tight text-blue-900">HRMS</span>
                 </div>
                 <div>
@@ -144,9 +144,9 @@
             <div id="mobileSidebar" class="fixed inset-0 z-40 bg-black/30 hidden">
                 <div class="absolute left-0 top-0 h-full w-64 bg-white shadow-lg flex flex-col py-8 px-4">
                     <div class="flex flex-col items-center mb-8 px-2">
-                        <div class="p-2 bg-blue-50 rounded-full mb-2">
-                            <img src="{{ asset('images/CBS IOT PNG.png') }}" alt="cbsiot.live Logo"
-                                class="h-10 w-auto rounded-full shadow">
+                        <div class="mb-2">
+                            <img src="https://cbsiot.live/assate/images/cbsiotlogo.svg" alt="cbsiot.live Logo"
+                                class="h-10 w-auto ">
                         </div>
                         <span class="text-2xl font-extrabold tracking-tight text-blue-900">HRMS</span>
                     </div>
