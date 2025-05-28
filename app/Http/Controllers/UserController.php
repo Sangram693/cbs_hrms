@@ -108,8 +108,25 @@ class UserController extends Controller
         ])->withInput();
     }
 
+    /**
+     * Display the dashboard.
+     */
+    public function dashboard()
+    {
+        $user = auth()->user();
+        $stats = $this->dashboardStats(request(), true);
+
+        if ($user->isSuperAdmin()) {
+            return view('dashboard_superadmin', compact('stats'));
+        } elseif ($user->isAdmin() || $user->isHr()) {
+            return view('dashboard_admin', compact('stats'));
+        } else {
+            return view('dashboard_user');
+        }
+    }
+
     // API endpoint for dashboard stats
-    public function dashboardStats(Request $request)
+    public function dashboardStats(Request $request, $returnArray = false)
     {
         $user = $request->user();
         $companyId = $user && $user->company_id ? $user->company_id : null;
@@ -118,18 +135,18 @@ class UserController extends Controller
         $stats = [];
         if ($isSuperAdmin) {
             $stats['companies'] = DB::table('companies')->count();
-            $stats['employees'] = DB::table('users')->where('role', 'user')->where('active', true)->count();
+            $stats['employees'] = DB::table('employees')->where('status', "Active")->count();
             $stats['departments'] = DB::table('departments')->count();
-            $stats['positions'] = DB::table('positions')->count();
+            $stats['designations'] = DB::table('designations')->count();
             $stats['attendance'] = DB::table('attendances')->count();
             $stats['leaves'] = DB::table('leaves')->count();
             $stats['salaries'] = DB::table('salaries')->count();
             $stats['trainings'] = DB::table('trainings')->count();
         } elseif ($companyId) {
             $stats['companies'] = 1;
-            $stats['employees'] = DB::table('users')->where('company_id', $companyId)->where('role', 'user')->where('active', true)->count();
+            $stats['employees'] = DB::table('employees')->where('company_id', $companyId)->where('status', "Active")->count();
             $stats['departments'] = DB::table('departments')->where('company_id', $companyId)->count();
-            $stats['positions'] = DB::table('positions')->where('company_id', $companyId)->count();
+            $stats['designations'] = DB::table('designations')->where('company_id', $companyId)->count();
             $stats['attendance'] = DB::table('attendances')->where('company_id', $companyId)->count();
             $stats['leaves'] = DB::table('leaves')->where('company_id', $companyId)->count();
             $stats['salaries'] = DB::table('salaries')->where('company_id', $companyId)->count();
@@ -139,14 +156,14 @@ class UserController extends Controller
                 'companies' => 0,
                 'employees' => 0,
                 'departments' => 0,
-                'positions' => 0,
+                'designations' => 0,
                 'attendance' => 0,
                 'leaves' => 0,
                 'salaries' => 0,
                 'trainings' => 0,
             ];
         }
-        return response()->json($stats);
+        return $returnArray ? $stats : response()->json($stats);
     }
 
     // Other methods like index, store, etc., can be similarly annotated.

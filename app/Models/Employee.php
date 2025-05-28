@@ -19,7 +19,7 @@ class Employee extends Model
         'email',
         'phone',
         'department_id',
-        'position_id',
+        'designation_id',
         'hire_date',
         'salary',
         'user_role',
@@ -39,14 +39,17 @@ class Employee extends Model
         });
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);
-    }
-
-    public function position()
+    }    public function designation()
     {
-        return $this->belongsTo(Position::class);
+        return $this->belongsTo(Designation::class);
     }
 
     public function company()

@@ -6,18 +6,18 @@
     <form action="{{ route('employees.store') }}" method="POST">
         @csrf
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Name</label>
+            <label class="block mb-1 font-semibold">Name <span class="text-red-500">*</span></label>
             <input type="text" name="name" class="w-full border rounded px-3 py-2" value="{{ old('name') }}" required>
             @error('name')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Email</label>
+            <label class="block mb-1 font-semibold">Email <span class="text-red-500">*</span></label>
             <input type="email" name="email" class="w-full border rounded px-3 py-2" value="{{ old('email') }}" required>
             @error('email')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         @if(auth()->user()->isSuperAdmin())
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Company</label>
+            <label class="block mb-1 font-semibold">Company <span class="text-red-500">*</span></label>
             <select name="company_id" id="company_id" class="w-full border rounded px-3 py-2" required>
                 <option value="">Select Company</option>
                 @foreach($companies as $company)
@@ -30,7 +30,7 @@
             <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
         @endif
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Department</label>
+            <label class="block mb-1 font-semibold">Department <span class="text-red-500">*</span></label>
             <select name="department_id" id="department_id" class="w-full border rounded px-3 py-2" required>
                 <option value="">Select Department</option>
                 @foreach($departments as $department)
@@ -39,27 +39,29 @@
             </select>
             @error('department_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-4">
-            <label class="block mb-1 font-semibold">Position</label>
-            <select name="position_id" id="position_id" class="w-full border rounded px-3 py-2" required>
-                <option value="">Select Position</option>
-                @foreach($positions as $position)
-                    <option value="{{ $position->id }}" data-department="{{ $position->department_id }}" {{ old('position_id') == $position->id ? 'selected' : '' }}>{{ $position->title }}</option>
+        <div class="mb-4">            <label class="block mb-1 font-semibold">Designation <span class="text-red-500">*</span></label>
+            <select name="designation_id" id="designation_id" class="w-full border rounded px-3 py-2" required>
+                <option value="">Select Designation</option>
+                @foreach($designations as $designation)
+                    <option value="{{ $designation->id }}" data-department="{{ $designation->department_id }}" {{ old('designation_id') == $designation->id ? 'selected' : '' }}>{{ $designation->title }}</option>
                 @endforeach
             </select>
-            @error('position_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            @error('designation_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-4">
-            <label class="block mb-1 font-semibold">Role</label>
+        <div class="mb-4">            <label class="block mb-1 font-semibold">Role <span class="text-red-500">*</span></label>
             <select name="user_role" class="w-full border rounded px-3 py-2" required>
                 <option value="employee" {{ old('user_role', 'employee') == 'employee' ? 'selected' : '' }}>Employee</option>
-                <option value="admin" {{ old('user_role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                <option value="super_admin" {{ old('user_role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                @if(auth()->user()->isSuperAdmin())
+                    <option value="admin" {{ old('user_role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="super_admin" {{ old('user_role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                @elseif(auth()->user()->isAdmin())
+                    <option value="admin" {{ old('user_role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                @endif
             </select>
             @error('user_role')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Employee ID</label>
+            <label class="block mb-1 font-semibold">Employee ID <span class="text-red-500">*</span></label>
             <input type="text" name="emp_id" class="w-full border rounded px-3 py-2" value="{{ old('emp_id') }}" required>
             @error('emp_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
@@ -69,13 +71,13 @@
             @error('phone')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Salary</label>
+            <label class="block mb-1 font-semibold">Salary <span class="text-red-500">*</span></label>
             <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary') }}" step="0.01" min="0" required>
             @error('salary')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label for="fingerprint_id" class="block text-gray-700 font-semibold mb-2">Fingerprint ID</label>
-            <input type="text" name="fingerprint_id" id="fingerprint_id" value="{{ old('fingerprint_id', isset($employee) ? $employee->fingerprint_id : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+            <label for="fingerprint_id" class="block text-gray-700 font-semibold mb-2">Fingerprint ID <span class="text-red-500">*</span></label>
+            <input type="text" name="fingerprint_id" id="fingerprint_id" value="{{ old('fingerprint_id', isset($employee) ? $employee->fingerprint_id : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition" required>
             @error('fingerprint_id')
                 <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
@@ -85,12 +87,9 @@
     </form>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const companySelect = document.getElementById('company_id');
+document.addEventListener('DOMContentLoaded', function() {    const companySelect = document.getElementById('company_id');
     const departmentSelect = document.getElementById('department_id');
-    const positionSelect = document.getElementById('position_id');
-
-    function filterDepartments() {
+    const designationSelect = document.getElementById('designation_id');    function filterDepartments() {
         if (companySelect) {
             const companyId = companySelect.value;
             Array.from(departmentSelect.options).forEach(option => {
@@ -101,23 +100,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (departmentSelect.selectedOptions.length && departmentSelect.selectedOptions[0].style.display === 'none') {
                 departmentSelect.value = '';
             }
-        }
-        filterPositions(); // Also filter positions
+        }        filterDesignations(); // Also filter designations
     }
 
-    function filterPositions() {
-        const deptId = departmentSelect.value;
-        Array.from(positionSelect.options).forEach(option => {
+    function filterDesignations() {
+        const departmentId = departmentSelect.value;
+        Array.from(designationSelect.options).forEach(option => {
             if (!option.value) return;
-            option.style.display = option.getAttribute('data-department') === deptId ? '' : 'none';
+            option.style.display = option.getAttribute('data-department') === departmentId ? '' : 'none';
         });
-        if (positionSelect.selectedOptions.length && positionSelect.selectedOptions[0].style.display === 'none') {
-            positionSelect.value = '';
+        if (designationSelect.selectedOptions.length && designationSelect.selectedOptions[0].style.display === 'none') {
+            designationSelect.value = '';
         }
     }
 
     if (companySelect) companySelect.addEventListener('change', filterDepartments);
-    departmentSelect.addEventListener('change', filterPositions);
+    departmentSelect.addEventListener('change', filterDesignations);
     filterDepartments(); // Initial filter
 });
 </script>

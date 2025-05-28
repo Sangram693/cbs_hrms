@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
         $companies = Company::all();
 
         // Super Admin (global, not tied to a company)
-        User::firstOrCreate(
+        $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@example.com'],
             [
                 'id' => Str::uuid(),
@@ -27,26 +27,43 @@ class UserSeeder extends Seeder
 
         // Admin and user for each company
         foreach ($companies as $company) {
-            User::firstOrCreate(
-                ['email' => 'admin_' . strtolower($company->name) . '@example.com'],
-                [
-                    'id' => Str::uuid(),
-                    'name' => $company->name . ' Admin',
-                    'password' => 'password',
-                    'role' => 'admin',
-                    'company_id' => $company->id,
-                ]
-            );
-            User::firstOrCreate(
-                ['email' => 'user_' . strtolower($company->name) . '@example.com'],
-                [
-                    'id' => Str::uuid(),
-                    'name' => $company->name . ' User',
-                    'password' => 'password',
-                    'role' => 'user',
-                    'company_id' => $company->id,
-                ]
-            );
+            // Create admin employee first
+            $adminEmployee = \App\Models\Employee::create([
+                'name' => $company->name . ' Admin',
+                'email' => 'admin_' . strtolower($company->name) . '@example.com',
+                'company_id' => $company->id,
+                'user_role' => 'admin',
+                'status' => 'Active',
+            ]);
+
+            // Create user employee first
+            $userEmployee = \App\Models\Employee::create([
+                'name' => $company->name . ' User',
+                'email' => 'user_' . strtolower($company->name) . '@example.com',
+                'company_id' => $company->id,
+                'user_role' => 'employee',
+                'status' => 'Active',
+            ]);
+
+            // Create admin user with employee's ID
+            User::create([
+                'id' => $adminEmployee->id,
+                'name' => $adminEmployee->name,
+                'email' => $adminEmployee->email,
+                'password' => 'password',
+                'role' => 'admin',
+                'company_id' => $company->id,
+            ]);
+
+            // Create regular user with employee's ID
+            User::create([
+                'id' => $userEmployee->id,
+                'name' => $userEmployee->name,
+                'email' => $userEmployee->email,
+                'password' => 'password',
+                'role' => 'user',
+                'company_id' => $company->id,
+            ]);
         }
     }
 }

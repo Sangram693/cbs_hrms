@@ -61,10 +61,30 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
-            'check_in' => 'nullable',
-            'check_out' => 'nullable',
-            'status' => 'required|string',
+            'check_in' => 'nullable|date_format:H:i',
+            'check_out' => [
+                'nullable',
+                'date_format:H:i',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value && $request->check_in) {
+                        $checkIn = \Carbon\Carbon::createFromFormat('H:i', $request->check_in);
+                        $checkOut = \Carbon\Carbon::createFromFormat('H:i', $value);
+                        if ($checkOut->lte($checkIn)) {
+                            $fail('Check-out time must be after check-in time.');
+                        }
+                    }
+                }
+            ],
+            'status' => 'required|string|in:Present,Absent,Leave',
         ]);
+
+        // Additional validation: if status is Present, both check_in and check_out are required
+        if ($validated['status'] === 'Present' && (!$validated['check_in'] || !$validated['check_out'])) {
+            return redirect()->back()
+                ->withErrors(['check_in' => 'Both check-in and check-out times are required when status is Present'])
+                ->withInput();
+        }
+
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
             $validated['company_id'] = $request->input('company_id');
@@ -73,6 +93,7 @@ class AttendanceController extends Controller
             $employee = \App\Models\Employee::find($validated['employee_id']);
             $validated['company_id'] = $employee ? $employee->company_id : $user->company_id;
         }
+        
         Attendance::create($validated);
         return redirect()->route('attendance.index')->with('success', 'Attendance created successfully.');
     }
@@ -104,10 +125,30 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
-            'check_in' => 'nullable',
-            'check_out' => 'nullable',
-            'status' => 'required|string',
+            'check_in' => 'nullable|date_format:H:i',
+            'check_out' => [
+                'nullable',
+                'date_format:H:i',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value && $request->check_in) {
+                        $checkIn = \Carbon\Carbon::createFromFormat('H:i', $request->check_in);
+                        $checkOut = \Carbon\Carbon::createFromFormat('H:i', $value);
+                        if ($checkOut->lte($checkIn)) {
+                            $fail('Check-out time must be after check-in time.');
+                        }
+                    }
+                }
+            ],
+            'status' => 'required|string|in:Present,Absent,Leave',
         ]);
+
+        // Additional validation: if status is Present, both check_in and check_out are required
+        if ($validated['status'] === 'Present' && (!$validated['check_in'] || !$validated['check_out'])) {
+            return redirect()->back()
+                ->withErrors(['check_in' => 'Both check-in and check-out times are required when status is Present'])
+                ->withInput();
+        }
+
         $attendance->update($validated);
         return redirect()->route('attendance.index')->with('success', 'Attendance updated successfully.');
     }

@@ -27,6 +27,10 @@
                 <span class="text-2xl mb-1 text-teal-500">📚</span>
                 <span class="font-semibold text-teal-900 text-sm">Trainings</span>
             </a>
+            <a href="{{ route('profile.edit') }}" class="block bg-white border border-gray-300 rounded-xl p-3 shadow hover:shadow-xl transition flex flex-col items-center text-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span class="text-2xl mb-1 text-blue-500"><i class="fas fa-user"></i></span>
+                <span class="font-semibold text-blue-900 text-sm">Profile</span>
+            </a>
         </div>
     </div>
 </div>

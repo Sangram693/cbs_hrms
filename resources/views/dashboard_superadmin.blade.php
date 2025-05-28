@@ -16,7 +16,7 @@
                     [ 'label' => 'Companies', 'icon' => '🏢', 'color' => 'blue', 'route' => route('companies.index'), 'count' => $stats['companies'] ?? 0 ],
                     [ 'label' => 'Employees', 'icon' => '👤', 'color' => 'green', 'route' => route('employees.index'), 'count' => $stats['employees'] ?? 0 ],
                     [ 'label' => 'Departments', 'icon' => '🏬', 'color' => 'yellow', 'route' => route('departments.index'), 'count' => $stats['departments'] ?? 0 ],
-                    [ 'label' => 'Positions', 'icon' => '💼', 'color' => 'purple', 'route' => route('positions.index'), 'count' => $stats['positions'] ?? 0 ],
+                    [ 'label' => 'Designations', 'icon' => '💼', 'color' => 'purple', 'route' => route('designations.index'), 'count' => $stats['designations'] ?? 0 ],
                     [ 'label' => 'Attendance', 'icon' => '🕒', 'color' => 'pink', 'route' => route('attendance.index'), 'count' => $stats['attendance'] ?? 0 ],
                     [ 'label' => 'Leaves', 'icon' => '🌴', 'color' => 'indigo', 'route' => route('leaves.index'), 'count' => $stats['leaves'] ?? 0 ],
                     [ 'label' => 'Salaries', 'icon' => '💰', 'color' => 'red', 'route' => route('salaries.index'), 'count' => $stats['salaries'] ?? 0 ],

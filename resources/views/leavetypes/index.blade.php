@@ -22,31 +22,35 @@
             @endif
         </div>
     </div>
-    <table class="w-full border border-gray-300">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border px-3 py-2 text-center">SL</th>
-                <th class="border px-3 py-2 text-center">Name</th>
-                <th class="border px-3 py-2 text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($leaveTypes as $type)
+    <div class="relative overflow-auto shadow-md" style="height: calc(100vh - 250px);">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
                 <tr>
-                    <td class="border px-3 py-2 text-center">{{ $loop->iteration }}</td>
-                    <td class="border px-3 py-2 text-center">{{ $type->name }}</td>
-                    <td class="border px-3 py-2 text-center">
-                        <a href="{{ route('leavetypes.edit', $type) }}" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></a>
-                        <form action="{{ route('leavetypes.destroy', $type) }}" method="POST" class="inline" onsubmit="return confirm('Delete this leave type?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-red-600"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </td>
+                    <th class="py-3 px-6 text-center">SL</th>
+                    <th class="py-3 px-6 text-center">Name</th>
+                    <th class="py-3 px-6 text-center">Actions</th>
                 </tr>
-            @empty
-                <tr><td colspan="3" class="text-center py-4">No leave types found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($leaveTypes as $type)
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="py-3 px-6 text-center whitespace-nowrap">{{ $loop->iteration }}</td>
+                        <td class="py-3 px-6 text-center whitespace-nowrap">{{ $type->name }}</td>
+                        <td class="py-3 px-6 text-center whitespace-nowrap">
+                            <a href="{{ route('leavetypes.edit', $type) }}" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></a>
+                            <form action="{{ route('leavetypes.destroy', $type) }}" method="POST" class="inline" onsubmit="return confirm('Delete this leave type?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-red-600"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr class="bg-white border-b">
+                        <td colspan="3" class="py-3 px-6 text-center">No leave types found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

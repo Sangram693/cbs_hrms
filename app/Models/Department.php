@@ -33,11 +33,9 @@ class Department extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
-    }
-
-    public function positions()
+    }    public function designations()
     {
-        return $this->hasMany(Position::class);
+        return $this->hasMany(Designation::class);
     }
 
     public function employees()
