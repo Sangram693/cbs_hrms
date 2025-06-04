@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Leaves')
 @section('content')
     <div class="bg-white p-6 rounded shadow">
         <h2 class="text-xl font-bold mb-4">Leaves</h2>

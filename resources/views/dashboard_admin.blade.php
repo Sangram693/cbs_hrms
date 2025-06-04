@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Dashboard')
 @section('content')
 <div class="max-w-6xl mx-auto mt-4">
     <div class="text-center py-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md">

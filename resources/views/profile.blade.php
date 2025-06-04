@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Profile')
 @section('content')
 <div class="max-w-lg mx-auto mt-8 bg-white p-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4 text-center">My Profile</h2>

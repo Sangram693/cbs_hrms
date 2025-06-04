@@ -28,13 +28,9 @@ Route::post('/logout', function () {
     return redirect()->route('login');
 })->name('logout')->middleware('auth');
 
-// Redirect base URL to dashboard or login
+// Show welcome page with conditional redirect based on auth status
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    } else {
-        return redirect()->route('login');
-    }
+    return view('welcome');
 });
 
 // Protected routes (session auth)

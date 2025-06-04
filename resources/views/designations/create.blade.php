@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Add Designation')
 @section('content')
 <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4">Add Designation</h2>

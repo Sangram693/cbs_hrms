@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Add Employee')
 @section('content')
 <div class="bg-white p-6 rounded shadow max-w-lg mx-auto">
     <h2 class="text-xl font-bold mb-4">Add Employee</h2>
