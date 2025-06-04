@@ -7,10 +7,14 @@
     <div class="relative overflow-auto shadow-md" style="height: calc(100vh - 250px);">
         <table class="w-full text-sm text-left text-gray-500">
             <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                <tr>                <th class="py-3 px-6 text-center">Name</th>
-                <th class="py-3 px-6 text-center">Email</th>
+                <tr>
+                <th class="py-3 px-6 text-center">Sl. No.</th>
+                <th class="py-3 px-6 text-center">Ref. No</th>
+                <th class="py-3 px-6 text-center">Employee Name</th>
+                <th class="py-3 px-6 text-center">Date of Joining</th>
                 <th class="py-3 px-6 text-center">Department</th>
                 <th class="py-3 px-6 text-center">Designation</th>
+                <th class="py-3 px-6 text-center">Type</th>
                 @if(auth()->user()->isSuperAdmin())
                 <th class="py-3 px-6 text-center">Company</th>
                 @endif
@@ -18,9 +22,13 @@
             </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-            @forelse($employees as $employee)            <tr class="hover:bg-gray-50">
+            @forelse($employees as $index => $employee)
+            <tr class="hover:bg-gray-50">
+                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $index + 1 }}</td>
+                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->emp_id }}</td>
                 <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->name }}</td>
-                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->email }}</td>                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->department->name ?? '-' }}</td>
+                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->hire_date ? date('d-m-Y', strtotime($employee->hire_date)) : '-' }}</td>
+                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->department->name ?? '-' }}</td>
                 <td class="py-3 px-6 text-center whitespace-nowrap">
                     @if($employee->designation)
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -29,6 +37,11 @@
                     @else
                         -
                     @endif
+                </td>
+                <td class="py-3 px-6 text-center whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $employee->employee_type === 'Permanent' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $employee->employee_type }}
+                    </span>
                 </td>
                 @if(auth()->user()->isSuperAdmin())
                 <td class="py-3 px-6 text-center whitespace-nowrap">{{ $employee->company->name ?? '-' }}</td>

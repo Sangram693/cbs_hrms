@@ -55,7 +55,7 @@
                         </li>
                     @elseif(auth()->check() && auth()->user()->isAdmin())
                         <li><a href="{{ route('companies.index') }}"
-                                class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-building text-cyan-600 h-5 w-5"></i>Companies</a>
+                                class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-building text-cyan-600 h-5 w-5"></i>Company</a>
                         </li>
                         <li><a href="{{ route('employees.index') }}"
                                 class="block px-4 py-2 rounded hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-users text-emerald-600 h-5 w-5"></i>Employees</a>

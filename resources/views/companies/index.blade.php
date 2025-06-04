@@ -2,7 +2,13 @@
 @section('title', 'Company')
 @section('content')
 <div class="bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Companies</h2>
+    <h2 class="text-xl font-bold mb-4">
+        @if(auth()->user()->isSuperAdmin())
+            Companies
+        @else
+            {{ auth()->user()->company->name ?? 'Company' }}
+        @endif
+    </h2>
     @if(auth()->user()->isSuperAdmin())
     <a href="{{ route('companies.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">Add Company</a>
     @endif
