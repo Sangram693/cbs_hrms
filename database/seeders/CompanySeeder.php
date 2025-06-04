@@ -13,15 +13,10 @@ class CompanySeeder extends Seeder
         // Create two sample companies
         \App\Models\Company::create([
             'id' => Str::uuid(),
-            'name' => 'Acme Corp',
+            'name' => 'Haritasa',
             'address' => '123 Acme Street',
             'phone' => '123-456-7890',
         ]);
-        \App\Models\Company::create([
-            'id' => Str::uuid(),
-            'name' => 'CBS',
-            'address' => 'Kolkata',
-            'phone' => '987-654-3210',
-        ]);
+        
     }
 }

@@ -34,7 +34,6 @@ class DesignationController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'level' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id'
         ]);
 
@@ -59,7 +58,6 @@ class DesignationController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'level' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id'
         ]);
 

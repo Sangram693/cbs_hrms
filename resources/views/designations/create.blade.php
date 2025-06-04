@@ -14,14 +14,6 @@
         </div>
 
         <div class="mb-4">
-            <label for="level" class="block text-gray-700 font-bold mb-2">Level:</label>
-            <input type="text" name="level" id="level" class="form-input w-full @error('level') border-red-500 @enderror" value="{{ old('level') }}" required>
-            @error('level')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="mb-4">
             <label for="department_id" class="block text-gray-700 font-bold mb-2">Department:</label>
             <select name="department_id" id="department_id" class="form-select w-full @error('department_id') border-red-500 @enderror" required>
                 <option value="">Select Department</option>

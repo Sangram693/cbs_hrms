@@ -15,11 +15,11 @@ class UserSeeder extends Seeder
 
         // Super Admin (global, not tied to a company)
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => 'sneider@cbsiot.live'],
             [
                 'id' => Str::uuid(),
                 'name' => 'Super Admin',
-                'password' => 'password',
+                'password' => 'Sneider@143#',
                 'role' => 'super_admin',
                 'company_id' => null,
             ]
@@ -36,34 +36,17 @@ class UserSeeder extends Seeder
                 'status' => 'Active',
             ]);
 
-            // Create user employee first
-            $userEmployee = \App\Models\Employee::create([
-                'name' => $company->name . ' User',
-                'email' => 'user_' . strtolower($company->name) . '@example.com',
-                'company_id' => $company->id,
-                'user_role' => 'employee',
-                'status' => 'Active',
-            ]);
 
             // Create admin user with employee's ID
             User::create([
                 'id' => $adminEmployee->id,
                 'name' => $adminEmployee->name,
                 'email' => $adminEmployee->email,
-                'password' => 'password',
+                'password' =>  strtolower(str_replace(' ', '', $company->name)) . '@123#',
                 'role' => 'admin',
                 'company_id' => $company->id,
             ]);
 
-            // Create regular user with employee's ID
-            User::create([
-                'id' => $userEmployee->id,
-                'name' => $userEmployee->name,
-                'email' => $userEmployee->email,
-                'password' => 'password',
-                'role' => 'user',
-                'company_id' => $company->id,
-            ]);
         }
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('positions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
-            $table->string('level');
+           
             $table->uuid('department_id');
             $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
             $table->uuid('company_id');

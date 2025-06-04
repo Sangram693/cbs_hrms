@@ -32,7 +32,7 @@
                 <td class="py-3 px-6 text-center whitespace-nowrap">
                     @if($employee->designation)
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {{ $employee->designation->title }} ({{ $employee->designation->level }})
+                            {{ $employee->designation->title }}
                         </span>
                     @else
                         -

@@ -33,12 +33,12 @@
         @csrf
         <div>
             <label class="block text-gray-700 mb-2 font-semibold" for="email">Email</label>
-            <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm" type="email" name="email" id="email" value="admin_cbs@example.com" required autofocus value="{{ old('email') }}">
+            <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm" type="email" name="email" id="email" value="admin_haritasa@example.com" required autofocus value="{{ old('email') }}">
         </div>
         <div>
             <label class="block text-gray-700 mb-2 font-semibold" for="password" value="password">Password</label>
             <div class="relative">
-                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm pr-10" type="password" name="password" id="password" value="password" required autocomplete="current-password">
+                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm pr-10" type="password" name="password" id="password" value="haritasa@123#" required autocomplete="current-password">
                 <button type="button" id="togglePassword" tabindex="-1" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 focus:outline-none" aria-label="Show password">
                     <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path id="eyePath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

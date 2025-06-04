@@ -9,7 +9,6 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
                 <tr>
                     <th class="py-3 px-6 text-center">Title</th>
-                    <th class="py-3 px-6 text-center">Level</th>
                     @if(auth()->user()->isSuperAdmin())
                     <th class="py-3 px-6 text-center">Company</th>
                     @endif
@@ -21,7 +20,6 @@
                 @forelse($designations as $designation)
                 <tr class="bg-white border-b hover:bg-gray-50">
                     <td class="py-3 px-6 text-center whitespace-nowrap">{{ $designation->title }}</td>
-                    <td class="py-3 px-6 text-center whitespace-nowrap">{{ $designation->level }}</td>
                     @if(auth()->user()->isSuperAdmin())
                     <td class="py-3 px-6 text-center whitespace-nowrap">{{ $designation->company->name ?? '-' }}</td>
                     @endif
