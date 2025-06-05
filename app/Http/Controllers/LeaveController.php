@@ -30,26 +30,32 @@ class LeaveController extends Controller
             $leaves = collect();
         }
         return view('leaves.index', compact('leaves'));
-    }
-
-    public function create(Request $request)
+    }    public function create(Request $request)
     {
         $user = $request->user();
+        
+        // Get company ID based on user role
         if ($user->isSuperAdmin()) {
             $companyId = $request->input('company_id');
+        } elseif ($user->employee) {
+            $companyId = $user->employee->company_id;
         } else {
-            $companyId = $user->company_id;
+            // Redirect back if user has no employee record
+            return redirect()->route('leaves.index')->with('error', 'No employee record found.');
         }
+        
+        // Get employees based on user role
         $employees = $user->isSuperAdmin() || $user->isAdmin() || $user->isHr()
             ? \App\Models\Employee::where('company_id', $companyId)->get()
-            : [$user->employee];
+            : collect([$user->employee]);
+        
+        // Get leave types based on company ID for all users
         $leaveTypes = $companyId ? \App\Models\LeaveType::where('company_id', $companyId)->get() : collect();
         return view('leaves.create', compact('employees', 'leaveTypes'));
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
+    {        $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'leave_type' => 'required|string',
             'start_date' => 'required|date',
@@ -57,7 +63,10 @@ class LeaveController extends Controller
             'reason' => 'required|string',
             'approved_by' => 'nullable|integer|exists:employees,id',
         ]);
-        $validated['company_id'] = $request->user()->company_id;
+        
+        // Get employee and their company ID
+        $employee = \App\Models\Employee::findOrFail($validated['employee_id']);
+        $validated['company_id'] = $employee->company_id;
         $validated['status'] = 'Pending';
         Leave::create($validated);
         return redirect()->route('leaves.index')->with('success', 'Leave created successfully.');
@@ -67,30 +76,34 @@ class LeaveController extends Controller
     {
         $leave = Leave::where('company_id', $request->user()->company_id)->findOrFail($id);
         return response()->json($leave);
-    }
-
-    public function edit(Leave $leave, Request $request)
+    }    public function edit(Leave $leave, Request $request)
     {
         $user = $request->user();
+        
+        // Get company ID based on user role
+        if ($user->isSuperAdmin()) {
+            $companyId = $leave->company_id;
+        } elseif ($user->employee) {
+            $companyId = $user->employee->company_id;
+        } else {
+            // Redirect back if user has no employee record
+            return redirect()->route('leaves.index')->with('error', 'No employee record found.');
+        }
+        
+        // Get employees based on user role
         if ($user->isSuperAdmin()) {
             $employees = \App\Models\Employee::all();
-            $companyId = $leave->company_id;
         } elseif ($user->isAdmin()) {
-            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
-            $companyId = $user->company_id;
-        } elseif ($user->isUser() && $user->employee) {
+            $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+        } elseif ($user->isHr()) {
             $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
-            if ($hrDepartments->count() > 0) {
-                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
-            } else {
-                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
-            }
-            $companyId = $user->company_id;
+            $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
         } else {
-            $employees = collect();
-            $companyId = null;
+            $employees = collect([$user->employee]);
         }
-        $leaveTypes = $companyId ? \App\Models\LeaveType::where('company_id', $companyId)->get() : collect();
+        
+        // Get leave types based on company ID
+        $leaveTypes = \App\Models\LeaveType::where('company_id', $companyId)->get();
         return view('leaves.edit', compact('leave', 'employees', 'leaveTypes'));
     }
 

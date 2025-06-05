@@ -53,17 +53,26 @@ class AttendanceController extends Controller
             $employees = collect();
         }
         return view('attendance.create', compact('employees'));
-    }
-
-    // Store a newly created resource in storage.
+    }    // Store a newly created resource in storage.
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $status = $request->input('status');
+        
+        // Base validation rules
+        $rules = [
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
-            'check_in' => 'nullable|date_format:H:i',
-            'check_out' => [
-                'nullable',
+            'status' => 'required|string|in:Present,Absent,Leave',
+        ];
+
+        // Add conditional validation based on status
+        if ($status === 'Present') {
+            $rules['check_in'] = [
+                'required',
+                'date_format:H:i'
+            ];
+            $rules['check_out'] = [
+                'required',
                 'date_format:H:i',
                 function ($attribute, $value, $fail) use ($request) {
                     if ($value && $request->check_in) {
@@ -74,9 +83,13 @@ class AttendanceController extends Controller
                         }
                     }
                 }
-            ],
-            'status' => 'required|string|in:Present,Absent,Leave',
-        ]);
+            ];
+        } else {
+            $rules['check_in'] = 'nullable|date_format:H:i';
+            $rules['check_out'] = 'nullable|date_format:H:i';
+        }
+
+        $validated = $request->validate($rules);
 
         // Additional validation: if status is Present, both check_in and check_out are required
         if ($validated['status'] === 'Present' && (!$validated['check_in'] || !$validated['check_out'])) {

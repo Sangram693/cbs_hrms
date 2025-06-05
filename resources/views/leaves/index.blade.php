@@ -13,10 +13,11 @@
             @endif
         </div>
         <div class="relative overflow-auto shadow-md" style="height: calc(100vh - 250px);">
-            <table class="w-full text-sm text-left text-gray-500">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <table class="w-full text-sm text-left text-gray-500">                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
-                        <th class="py-3 px-6 text-center">Employee</th>
+                        @if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
+                            <th class="py-3 px-6 text-center">Employee</th>
+                        @endif
                         <th class="py-3 px-6 text-center">Type</th>
                         <th class="py-3 px-6 text-center">From</th>
                         <th class="py-3 px-6 text-center">To</th>
@@ -27,19 +28,20 @@
                         <th class="py-3 px-6 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($leaves as $leave)
+                <tbody class="bg-white divide-y divide-gray-200">                    @forelse($leaves as $leave)
                         <tr class="hover:bg-gray-50">
-                            <td class="py-3 px-6 text-center whitespace-nowrap">
-                                @if ($leave->employee)
-                                    <div class="font-medium">{{ $leave->employee->name }}</div>
-                                    @if ($leave->employee->emp_id)
-                                        <div class="text-xs text-gray-500">({{ $leave->employee->emp_id }})</div>
+                            @if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
+                                <td class="py-3 px-6 text-center whitespace-nowrap">
+                                    @if ($leave->employee)
+                                        <div class="font-medium">{{ $leave->employee->name }}</div>
+                                        @if ($leave->employee->emp_id)
+                                            <div class="text-xs text-gray-500">({{ $leave->employee->emp_id }})</div>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-500">No employee found</span>
                                     @endif
-                                @else
-                                    <span class="text-gray-500">No employee found</span>
-                                @endif
-                            </td>
+                                </td>
+                            @endif
                             <td class="py-3 px-6 text-center whitespace-nowrap">
                                 <span
                                     class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -48,18 +50,18 @@
                             </td>
                             <td class="py-3 px-6 text-center whitespace-nowrap">{{ $leave->start_date }}</td>
                             <td class="py-3 px-6 text-center whitespace-nowrap">{{ $leave->end_date }}</td>
-                            <td class="py-3 px-6 text-center whitespace-nowrap">
-                                @php
+                            <td class="py-3 px-6 text-center whitespace-nowrap">                                @php
                                     $statusColor =
                                         [
                                             'Pending' => 'bg-yellow-100 text-yellow-800',
                                             'Approved' => 'bg-green-100 text-green-800',
                                             'Rejected' => 'bg-red-100 text-red-800',
                                         ][$leave->status] ?? 'bg-gray-100 text-gray-800';
+                                    $canChangeStatus = auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr();
                                 @endphp
-                                <span class="px-3 py-1 rounded font-semibold pending-status {{ $statusColor }}"
-                                    data-leave-id="{{ $leave->id }}"
-                                    style="cursor:pointer; {{ $leave->status === 'Pending' ? 'text-decoration:underline;' : 'text-decoration:none;' }}">
+                                <span class="px-3 py-1 rounded font-semibold {{ $canChangeStatus ? 'pending-status' : '' }} {{ $statusColor }}"
+                                    @if($canChangeStatus) data-leave-id="{{ $leave->id }}" @endif
+                                    style="{{ $canChangeStatus && $leave->status === 'Pending' ? 'cursor:pointer; text-decoration:underline;' : '' }}">
                                     {{ $leave->status }}
                                 </span>
                             </td>
@@ -97,10 +99,9 @@
                                     @endif
                                 </div>
                             </td>
-                        </tr>
-                    @empty
+                        </tr>                    @empty
                         <tr>
-                            <td colspan="6" class="py-3 px-6 text-center">No leave records found.</td>
+                            <td colspan="{{ (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr()) ? (auth()->user()->isSuperAdmin() ? 7 : 6) : 5 }}" class="py-3 px-6 text-center">No leave records found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -181,8 +182,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.pending-status').forEach(function(el) {
-                // Only attach click event if status is Pending
-                if (el.textContent.trim() === 'Pending') {
+                // Only attach click event if status is Pending                let isAdmin = @json(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr());
+                if (isAdmin && el.textContent.trim() === 'Pending') {
                     el.style.cursor = 'pointer';
                     el.addEventListener('click', function() {
                         const leaveId = this.getAttribute('data-leave-id');

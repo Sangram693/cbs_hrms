@@ -46,19 +46,23 @@ class LeaveTypeController extends Controller
         $user = Auth::user();
         $companies = $user->isSuperAdmin() ? Company::all() : null;
         return view('leavetypes.edit', compact('leavetype', 'companies'));
-    }
-
-    public function update(Request $request, LeaveType $leavetype)
+    }    public function update(Request $request, LeaveType $leavetype)
     {
         $user = Auth::user();
-        $companyId = $user->isSuperAdmin() ? $request->get('company_id') : $user->company_id;
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'company_id' => 'required|exists:companies,id',
-        ]);
+        $rules = ['name' => 'required|string|max:255'];
+        
+        if ($user->isSuperAdmin()) {
+            $rules['company_id'] = 'required|exists:companies,id';
+            $companyId = $request->company_id;
+        } else {
+            $companyId = $user->company_id;
+        }
+
+        $request->validate($rules);
+        
         $leavetype->update([
             'name' => $request->name,
-            'company_id' => $companyId ?? $request->company_id,
+            'company_id' => $companyId,
         ]);
         return redirect()->route('leavetypes.index', $user->isSuperAdmin() ? ['company_id' => $companyId] : [])->with('success', 'Leave type updated.');
     }

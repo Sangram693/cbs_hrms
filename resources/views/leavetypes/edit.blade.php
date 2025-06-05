@@ -13,7 +13,7 @@
                 <select name="company_id" class="w-full border rounded px-3 py-2" required>
                     <option value="">Select Company</option>
                     @foreach($companies as $company)
-                        <option value="{{ $company->id }}" {{ $leavetype->company_id == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                        <option value="{{ $company->id }}" {{ old('company_id', $leavetype->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
                     @endforeach
                 </select>
                 @error('company_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror

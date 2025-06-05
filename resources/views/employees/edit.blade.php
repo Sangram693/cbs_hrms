@@ -8,17 +8,17 @@
         @method('PUT')
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Name</label>
-            <input type="text" name="name" class="w-full border rounded px-3 py-2" value="{{ old('name', $employee->name) }}" required>
+            <input type="text" name="name" class="w-full border rounded px-3 py-2" value="{{ old('name', $employee->name) }}" >
             @error('name')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Email</label>
-            <input type="email" name="email" class="w-full border rounded px-3 py-2" value="{{ old('email', $employee->email) }}" required>
+            <input type="email" name="email" class="w-full border rounded px-3 py-2" value="{{ old('email', $employee->email) }}" >
             @error('email')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Company</label>
-            <select name="company_id" id="company_id" class="w-full border rounded px-3 py-2" required>
+            <select name="company_id" id="company_id" class="w-full border rounded px-3 py-2" >
                 <option value="">Select Company</option>
                 @foreach($companies as $company)
                     <option value="{{ $company->id }}" {{ old('company_id', $employee->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
@@ -28,7 +28,7 @@
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Department</label>
-            <select name="department_id" id="department_id" class="w-full border rounded px-3 py-2" required>
+            <select name="department_id" id="department_id" class="w-full border rounded px-3 py-2" >
                 <option value="">Select Department</option>
                 @foreach($departments as $department)
                     <option value="{{ $department->id }}" data-company="{{ $department->company_id }}" {{ old('department_id', $employee->department_id) == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
@@ -37,7 +37,7 @@
             @error('department_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">            <label class="block mb-1 font-semibold">Designation</label>
-            <select name="designation_id" id="designation_id" class="w-full border rounded px-3 py-2" required>
+            <select name="designation_id" id="designation_id" class="w-full border rounded px-3 py-2" >
                 <option value="">Select Designation</option>
                 @foreach($designations as $designation)
                     <option value="{{ $designation->id }}" data-department="{{ $designation->department_id }}" {{ old('designation_id', $employee->designation_id) == $designation->id ? 'selected' : '' }}>{{ $designation->title }}</option>
@@ -46,7 +46,7 @@
             @error('designation_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">            <label class="block mb-1 font-semibold">Role</label>
-            <select name="user_role" class="w-full border rounded px-3 py-2" required>
+            <select name="user_role" class="w-full border rounded px-3 py-2" >
                 <option value="employee" {{ old('user_role', $employee->user_role ?? 'employee') == 'employee' ? 'selected' : '' }}>Employee</option>
                 @if(auth()->user()->isSuperAdmin())
                     <option value="admin" {{ old('user_role', $employee->user_role ?? '') == 'admin' ? 'selected' : '' }}>Admin</option>
@@ -59,7 +59,7 @@
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Employee ID</label>
-            <input type="text" name="emp_id" class="w-full border rounded px-3 py-2" value="{{ old('emp_id', $employee->emp_id) }}" required>
+            <input type="text" name="emp_id" class="w-full border rounded px-3 py-2" value="{{ old('emp_id', $employee->emp_id) }}" >
             @error('emp_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
@@ -69,7 +69,7 @@
         </div>
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Salary</label>
-            <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary', $employee->salary) }}" step="0.01" min="0" required>
+            <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary', $employee->salary) }}" step="0.01" min="0" >
             @error('salary')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">

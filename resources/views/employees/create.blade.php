@@ -70,14 +70,12 @@
             <input type="text" name="phone" class="w-full border rounded px-3 py-2" value="{{ old('phone') }}">
             @error('phone')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-4">
-            <label class="block mb-1 font-semibold">Salary <span class="text-red-500">*</span></label>
-            <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary') }}" step="0.01" min="0" required>
+        <div class="mb-4">            <label class="block mb-1 font-semibold">Salary</label>
+            <input type="number" name="salary" class="w-full border rounded px-3 py-2" value="{{ old('salary') }}" step="0.01" min="0">
             @error('salary')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-4">
-            <label for="fingerprint_id" class="block text-gray-700 font-semibold mb-2">Fingerprint ID <span class="text-red-500">*</span></label>
-            <input type="text" name="fingerprint_id" id="fingerprint_id" value="{{ old('fingerprint_id', isset($employee) ? $employee->fingerprint_id : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition" required>
+        <div class="mb-4">            <label for="fingerprint_id" class="block text-gray-700 font-semibold mb-2">Fingerprint ID</label>
+            <input type="text" name="fingerprint_id" id="fingerprint_id" value="{{ old('fingerprint_id', isset($employee) ? $employee->fingerprint_id : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
             @error('fingerprint_id')
                 <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror

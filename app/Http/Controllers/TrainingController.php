@@ -49,16 +49,35 @@ class TrainingController extends Controller
             $employees = collect();
         }
         return view('trainings.create', compact('employees'));
-    }
-
-    // Store a newly created resource in storage.
+    }    // Store a newly created resource in storage.
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
+    {        $status = $request->input('status');
+        $rules = [
+            'training_name' => 'required|string|max:255',
             'employee_id' => 'required|exists:employees,id',
-            'date' => 'required|date',
-        ]);
+            'status' => 'required|in:Not Started,Ongoing,Completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ];
+
+        // Add conditional validation based on status
+        if ($status === 'Ongoing') {
+            $rules['start_date'] = 'required|date';
+        } elseif ($status === 'Completed') {
+            $rules['start_date'] = 'required|date';
+            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+        }
+
+        $validated = $request->validate($rules);
+
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $employee = \App\Models\Employee::findOrFail($validated['employee_id']);
+            $validated['company_id'] = $employee->company_id;
+        } else {
+            $validated['company_id'] = $user->employee->company_id;
+        }
+
         Training::create($validated);
         return redirect()->route('trainings.index')->with('success', 'Training created successfully.');
     }
@@ -82,16 +101,35 @@ class TrainingController extends Controller
             $employees = collect();
         }
         return view('trainings.edit', compact('training', 'employees'));
-    }
-
-    // Update the specified resource in storage.
+    }    // Update the specified resource in storage.
     public function update(Request $request, Training $training)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
+    {        $status = $request->input('status');
+        $rules = [
+            'training_name' => 'required|string|max:255',
             'employee_id' => 'required|exists:employees,id',
-            'date' => 'required|date',
-        ]);
+            'status' => 'required|in:Not Started,Ongoing,Completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ];
+
+        // Add conditional validation based on status
+        if ($status === 'Ongoing') {
+            $rules['start_date'] = 'required|date';
+        } elseif ($status === 'Completed') {
+            $rules['start_date'] = 'required|date';
+            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+        }
+
+        $validated = $request->validate($rules);
+
+        $user = auth()->user();
+        if ($user->isSuperAdmin()) {
+            $employee = \App\Models\Employee::findOrFail($validated['employee_id']);
+            $validated['company_id'] = $employee->company_id;
+        } else {
+            $validated['company_id'] = $user->employee->company_id;
+        }
+
         $training->update($validated);
         return redirect()->route('trainings.index')->with('success', 'Training updated successfully.');
     }

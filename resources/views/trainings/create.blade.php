@@ -38,12 +38,11 @@
             @error('training_name')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-semibold">Status</label>
-            <select name="status" class="w-full border rounded px-3 py-2" required>
+            <label class="block mb-1 font-semibold">Status</label>            <select name="status" class="w-full border rounded px-3 py-2" required>
                 <option value="">Select Status</option>
+                <option value="Not Started" {{ old('status') == 'Not Started' ? 'selected' : '' }}>Not Started</option>
                 <option value="Ongoing" {{ old('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
                 <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
-                <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
             </select>
             @error('status')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>

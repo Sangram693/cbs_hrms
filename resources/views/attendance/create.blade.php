@@ -61,18 +61,52 @@
             <input type="time" name="check_out" class="w-full border rounded px-3 py-2" value="{{ old('check_out') }}">
             @error('check_out')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-4">
-            <label class="block mb-1 font-semibold">Status</label>
-            <select name="status" class="w-full border rounded px-3 py-2" required>
+        <div class="mb-4">            <label class="block mb-1 font-semibold">Status</label>
+            <select name="status" id="attendanceStatus" class="w-full border rounded px-3 py-2" required onchange="handleStatusChange()">
                 <option value="">Select Status</option>
                 <option value="Present" {{ old('status') == 'Present' ? 'selected' : '' }}>Present</option>
                 <option value="Absent" {{ old('status') == 'Absent' ? 'selected' : '' }}>Absent</option>
                 <option value="Leave" {{ old('status') == 'Leave' ? 'selected' : '' }}>Leave</option>
             </select>
             @error('status')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
-        </div>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
+        </div>        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
         <a href="{{ route('attendance.index') }}" class="ml-2 text-gray-600">Cancel</a>
     </form>
+
+    <script>
+        function handleStatusChange() {
+            const status = document.getElementById('attendanceStatus').value;
+            const checkInInput = document.querySelector('input[name="check_in"]');
+            const checkOutInput = document.querySelector('input[name="check_out"]');
+            const checkInParent = checkInInput.parentElement;
+            const checkOutParent = checkOutInput.parentElement;
+
+            // Reset required state and styling
+            checkInInput.removeAttribute('required');
+            checkOutInput.removeAttribute('required');
+            checkInParent.style.opacity = '1';
+            checkOutParent.style.opacity = '1';
+
+            if (status === 'Present') {
+                // For Present status, both times are required
+                checkInInput.setAttribute('required', 'required');
+                checkOutInput.setAttribute('required', 'required');
+                checkInParent.style.opacity = '1';
+                checkOutParent.style.opacity = '1';
+            } else if (status === 'Absent' || status === 'Leave') {
+                // For Absent or Leave, times are optional
+                checkInParent.style.opacity = '0.5';
+                checkOutParent.style.opacity = '0.5';
+                // Clear the values
+                checkInInput.value = '';
+                checkOutInput.value = '';
+            }
+        }
+
+        // Initialize form state
+        document.addEventListener('DOMContentLoaded', function() {
+            handleStatusChange();
+        });
+    </script>
 </div>
 @endsection
