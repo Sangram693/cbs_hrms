@@ -39,11 +39,17 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (ValidationException $exception, $request) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $exception->errors(),
-            ], 422);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $exception->errors(),
+                ], 422);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($exception->errors());
         });
 
         $exceptions->render(function (HttpResponseException $exception, $request) {
