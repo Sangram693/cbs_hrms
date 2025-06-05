@@ -72,6 +72,7 @@ class EmployeeSeeder extends Seeder
                 'email' => $email,               
                 'password' => strtolower(str_replace(' ', '', $company->name)) . '@123#',
                 'role' => $emp['role'] === 'employee' ? 'user' : $emp['role'], // If employee role is 'employee', user role is 'user', otherwise use the employee role
+                'company_id' => $company->id,
             ]);
         }
     }

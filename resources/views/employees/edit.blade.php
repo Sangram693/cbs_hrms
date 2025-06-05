@@ -67,7 +67,7 @@
                         </div>
                     @enderror
                 </div>
-            @elseif(auth()->user()->isAdmin())
+            @elseif(auth()->user()->isAdmin() || auth()->user()->isHr())
                 <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
             @endif
 
@@ -251,8 +251,8 @@
                 const departmentId = departmentSelect.value;
                 Array.from(designationSelect.options).forEach(option => {
                     if (!option.value) return;
-                    // Show all designations if no department selected, else show only matching ones
-                    option.style.display = (!departmentId || option.getAttribute('data-department') === departmentId) ? '' : 'none';
+                    // Hide all options if no department selected, otherwise show only matching ones
+                    option.style.display = (departmentId && option.getAttribute('data-department') === departmentId) ? '' : 'none';
                 });
             }// Only add company change listener if the select exists (for super admin)
             if (companySelect) {
