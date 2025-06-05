@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-white p-6 rounded shadow max-w-lg mx-auto">
     <h2 class="text-xl font-bold mb-4">Add Designation</h2>
-    <form action="{{ route('designations.store') }}" method="POST" id="designationForm">
+    <form action="{{ route('designations.store') }}" method="POST">
         @csrf
         <div class="mb-4">
             <label class="block mb-1">
@@ -11,11 +11,9 @@
                 <span class="text-red-500 ml-1">*</span>
             </label>
             <input type="text" 
-                   name="title" 
-                   id="title" 
-                   class="w-full border rounded px-3 py-2 @error('title') border-red-500 @enderror" 
-                   value="{{ old('title') }}" 
-                   required>
+                name="title" 
+                class="w-full border rounded px-3 py-2 @error('title') border-red-500 @enderror" 
+                value="{{ old('title') }}">
             @error('title')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -24,7 +22,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="titleError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -33,9 +30,7 @@
                 <span class="text-red-500 ml-1">*</span>
             </label>
             <select name="department_id" 
-                    id="department_id" 
-                    class="w-full border rounded px-3 py-2 @error('department_id') border-red-500 @enderror" 
-                    required>
+                class="w-full border rounded px-3 py-2 @error('department_id') border-red-500 @enderror">
                 <option value="">Select Department</option>
                 @foreach($departments as $department)
                     <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
@@ -51,7 +46,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="departmentError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -64,56 +58,4 @@
         </div>
     </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('designationForm');
-    const titleInput = document.getElementById('title');
-    const departmentSelect = document.getElementById('department_id');
-    
-    function validateTitle() {
-        const titleError = document.getElementById('titleError');
-        if (!titleInput.value.trim()) {
-            titleInput.classList.add('border-red-500');
-            titleError.textContent = 'Title is required';
-            titleError.classList.remove('hidden');
-            return false;
-        }
-        if (titleInput.value.length < 2) {
-            titleInput.classList.add('border-red-500');
-            titleError.textContent = 'Title must be at least 2 characters';
-            titleError.classList.remove('hidden');
-            return false;
-        }
-        titleInput.classList.remove('border-red-500');
-        titleError.classList.add('hidden');
-        return true;
-    }
-
-    function validateDepartment() {
-        const departmentError = document.getElementById('departmentError');
-        if (!departmentSelect.value) {
-            departmentSelect.classList.add('border-red-500');
-            departmentError.textContent = 'Please select a department';
-            departmentError.classList.remove('hidden');
-            return false;
-        }
-        departmentSelect.classList.remove('border-red-500');
-        departmentError.classList.add('hidden');
-        return true;
-    }
-
-    titleInput.addEventListener('input', validateTitle);
-    departmentSelect.addEventListener('change', validateDepartment);
-
-    form.addEventListener('submit', function(e) {
-        const isTitleValid = validateTitle();
-        const isDepartmentValid = validateDepartment();
-
-        if (!isTitleValid || !isDepartmentValid) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
 @endsection

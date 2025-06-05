@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-white p-6 rounded shadow max-w-lg mx-auto">
     <h2 class="text-xl font-bold mb-4">Edit Leave Type</h2>
-    <form action="{{ route('leavetypes.update', $leavetype) }}" method="POST" id="leaveTypeForm">
+    <form action="{{ route('leavetypes.update', $leavetype) }}" method="POST">
         @csrf
         @method('PUT')
         @php $user = auth()->user(); @endphp
@@ -14,9 +14,7 @@
                     <span class="text-red-500 ml-1">*</span>
                 </label>
                 <select name="company_id" 
-                        id="company_id"
-                        class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror" 
-                        required>
+                        class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
                     <option value="">Select Company</option>
                     @foreach($companies as $company)
                         <option value="{{ $company->id }}" {{ old('company_id', $leavetype->company_id) == $company->id ? 'selected' : '' }}>
@@ -32,7 +30,6 @@
                         {{ $message }}
                     </div>
                 @enderror
-                <div id="companyError" class="text-red-600 text-sm mt-1 hidden"></div>
             </div>
         @endif
 
@@ -43,10 +40,8 @@
             </label>
             <input type="text" 
                    name="name" 
-                   id="name"
                    class="w-full border rounded px-3 py-2 @error('name') border-red-500 @enderror" 
-                   value="{{ old('name', $leavetype->name) }}" 
-                   required>
+                   value="{{ old('name', $leavetype->name) }}">
             @error('name')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -55,7 +50,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="nameError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -69,59 +63,4 @@
         </div>
     </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('leaveTypeForm');
-    const nameInput = document.getElementById('name');
-    const companySelect = document.getElementById('company_id');
-
-    function validateName() {
-        const nameError = document.getElementById('nameError');
-        if (!nameInput.value.trim()) {
-            nameInput.classList.add('border-red-500');
-            nameError.textContent = 'Leave type name is required';
-            nameError.classList.remove('hidden');
-            return false;
-        }
-        if (nameInput.value.trim().length < 2) {
-            nameInput.classList.add('border-red-500');
-            nameError.textContent = 'Leave type name must be at least 2 characters';
-            nameError.classList.remove('hidden');
-            return false;
-        }
-        nameInput.classList.remove('border-red-500');
-        nameError.classList.add('hidden');
-        return true;
-    }
-
-    function validateCompany() {
-        if (!companySelect) return true;
-        const companyError = document.getElementById('companyError');
-        if (!companySelect.value) {
-            companySelect.classList.add('border-red-500');
-            companyError.textContent = 'Please select a company';
-            companyError.classList.remove('hidden');
-            return false;
-        }
-        companySelect.classList.remove('border-red-500');
-        companyError.classList.add('hidden');
-        return true;
-    }
-
-    nameInput.addEventListener('input', validateName);
-    if (companySelect) {
-        companySelect.addEventListener('change', validateCompany);
-    }
-
-    form.addEventListener('submit', function(e) {
-        const isNameValid = validateName();
-        const isCompanyValid = validateCompany();
-
-        if (!isNameValid || !isCompanyValid) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
 @endsection

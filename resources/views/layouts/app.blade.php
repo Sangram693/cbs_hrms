@@ -257,7 +257,7 @@
         }
         // Removed SPA navigation logic. All navigation is now handled by default browser behavior.
     </script>
-    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

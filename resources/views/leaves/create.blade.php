@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-white p-6 rounded shadow max-w-lg mx-auto">
     <h2 class="text-xl font-bold mb-4">Add Leave</h2>
-    <form action="{{ route('leaves.store') }}" method="POST" id="leaveForm">
+    <form action="{{ route('leaves.store') }}" method="POST">
         @csrf
         <div class="mb-4">
             @php
@@ -17,9 +17,7 @@
                     <span class="text-red-500 ml-1">*</span>
                 </label>
                 <select name="employee_id" 
-                        id="employee_id"
-                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror" 
-                        required>
+                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror">
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
                         <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
@@ -35,7 +33,6 @@
                         {{ $message }}
                     </div>
                 @enderror
-                <div id="employeeError" class="text-red-600 text-sm mt-1 hidden"></div>
             @else
                 <input type="hidden" name="employee_id" value="{{ auth()->user()->employee_id }}">
             @endif
@@ -47,9 +44,7 @@
                 <span class="text-red-500 ml-1">*</span>
             </label>
             <select name="leave_type" 
-                    id="leave_type"
-                    class="w-full border rounded px-3 py-2 @error('leave_type') border-red-500 @enderror" 
-                    required>
+                    class="w-full border rounded px-3 py-2 @error('leave_type') border-red-500 @enderror">
                 <option value="">Select Type</option>
                 @foreach($leaveTypes as $leaveType)
                     <option value="{{ $leaveType->name }}" {{ old('leave_type', $leave->leave_type ?? $leave->type ?? null) == $leaveType->name ? 'selected' : '' }}>
@@ -65,7 +60,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="leaveTypeError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -75,10 +69,8 @@
             </label>
             <input type="date" 
                    name="start_date" 
-                   id="start_date"
                    class="w-full border rounded px-3 py-2 @error('start_date') border-red-500 @enderror" 
-                   value="{{ old('start_date') }}" 
-                   required>
+                   value="{{ old('start_date') }}">
             @error('start_date')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -87,7 +79,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="startDateError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -97,10 +88,8 @@
             </label>
             <input type="date" 
                    name="end_date" 
-                   id="end_date"
                    class="w-full border rounded px-3 py-2 @error('end_date') border-red-500 @enderror" 
-                   value="{{ old('end_date') }}" 
-                   required>
+                   value="{{ old('end_date') }}">
             @error('end_date')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -109,7 +98,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="endDateError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -118,9 +106,7 @@
                 <span class="text-red-500 ml-1">*</span>
             </label>
             <textarea name="reason" 
-                      id="reason"
-                      class="w-full border rounded px-3 py-2 @error('reason') border-red-500 @enderror" 
-                      required>{{ old('reason') }}</textarea>
+                      class="w-full border rounded px-3 py-2 @error('reason') border-red-500 @enderror">{{ old('reason') }}</textarea>
             @error('reason')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -129,7 +115,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="reasonError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -142,123 +127,4 @@
         </div>
     </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('leaveForm');
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
-    const reasonInput = document.getElementById('reason');
-    const leaveTypeSelect = document.getElementById('leave_type');
-    const employeeSelect = document.getElementById('employee_id');
-
-    function validateEmployee() {
-        if (!employeeSelect) return true;
-        const employeeError = document.getElementById('employeeError');
-        if (!employeeSelect.value) {
-            employeeSelect.classList.add('border-red-500');
-            employeeError.textContent = 'Please select an employee';
-            employeeError.classList.remove('hidden');
-            return false;
-        }
-        employeeSelect.classList.remove('border-red-500');
-        employeeError.classList.add('hidden');
-        return true;
-    }
-
-    function validateLeaveType() {
-        const leaveTypeError = document.getElementById('leaveTypeError');
-        if (!leaveTypeSelect.value) {
-            leaveTypeSelect.classList.add('border-red-500');
-            leaveTypeError.textContent = 'Please select a leave type';
-            leaveTypeError.classList.remove('hidden');
-            return false;
-        }
-        leaveTypeSelect.classList.remove('border-red-500');
-        leaveTypeError.classList.add('hidden');
-        return true;
-    }
-
-    function validateDates() {
-        const startDateError = document.getElementById('startDateError');
-        const endDateError = document.getElementById('endDateError');
-        const start = new Date(startDateInput.value);
-        const end = new Date(endDateInput.value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        let isValid = true;
-
-        if (!startDateInput.value) {
-            startDateInput.classList.add('border-red-500');
-            startDateError.textContent = 'Start date is required';
-            startDateError.classList.remove('hidden');
-            isValid = false;
-        } else if (start < today) {
-            startDateInput.classList.add('border-red-500');
-            startDateError.textContent = 'Start date cannot be in the past';
-            startDateError.classList.remove('hidden');
-            isValid = false;
-        } else {
-            startDateInput.classList.remove('border-red-500');
-            startDateError.classList.add('hidden');
-        }
-
-        if (!endDateInput.value) {
-            endDateInput.classList.add('border-red-500');
-            endDateError.textContent = 'End date is required';
-            endDateError.classList.remove('hidden');
-            isValid = false;
-        } else if (end < start) {
-            endDateInput.classList.add('border-red-500');
-            endDateError.textContent = 'End date must be after start date';
-            endDateError.classList.remove('hidden');
-            isValid = false;
-        } else {
-            endDateInput.classList.remove('border-red-500');
-            endDateError.classList.add('hidden');
-        }
-
-        return isValid;
-    }
-
-    function validateReason() {
-        const reasonError = document.getElementById('reasonError');
-        if (!reasonInput.value.trim()) {
-            reasonInput.classList.add('border-red-500');
-            reasonError.textContent = 'Please provide a reason for leave';
-            reasonError.classList.remove('hidden');
-            return false;
-        }
-        if (reasonInput.value.trim().length < 10) {
-            reasonInput.classList.add('border-red-500');
-            reasonError.textContent = 'Reason must be at least 10 characters';
-            reasonError.classList.remove('hidden');
-            return false;
-        }
-        reasonInput.classList.remove('border-red-500');
-        reasonError.classList.add('hidden');
-        return true;
-    }
-
-    if (employeeSelect) {
-        employeeSelect.addEventListener('change', validateEmployee);
-    }
-    leaveTypeSelect.addEventListener('change', validateLeaveType);
-    startDateInput.addEventListener('change', validateDates);
-    endDateInput.addEventListener('change', validateDates);
-    reasonInput.addEventListener('input', validateReason);
-
-    form.addEventListener('submit', function(e) {
-        const isEmployeeValid = validateEmployee();
-        const isLeaveTypeValid = validateLeaveType();
-        const areDatesValid = validateDates();
-        const isReasonValid = validateReason();
-
-        if (!isEmployeeValid || !isLeaveTypeValid || !areDatesValid || !isReasonValid) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
 @endsection

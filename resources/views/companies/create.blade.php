@@ -8,106 +8,47 @@
             <label class="block mb-1">
                 <span class="font-semibold">Name</span>
                 <span class="text-red-500 ml-1">*</span>
-                <span class="text-sm text-gray-500">(Required)</span>
             </label>
             <input type="text" 
                 name="name" 
-                id="companyName"
-                class="w-full border rounded px-3 py-2 {{ $errors->has('name') ? 'border-red-500' : '' }}" 
-                value="{{ old('name') }}"
-                oninput="validateCompanyName(this)"
-                required>
+                class="w-full border rounded px-3 py-2 @error('name') border-red-500 @enderror" 
+                value="{{ old('name') }}">
             @error('name')
                 <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
             @enderror
-            <div id="nameError" class="text-red-600 text-sm mt-1" style="display: none;"></div>
         </div>
+
         <div class="mb-4">
             <label class="block mb-1">
                 <span class="font-semibold">Address</span>
-                <span class="text-sm text-gray-500">(Optional)</span>
+                <span class="text-gray-500 text-sm ml-1">(Optional)</span>
             </label>
             <textarea 
                 name="address" 
-                class="w-full border rounded px-3 py-2 {{ $errors->has('address') ? 'border-red-500' : '' }}" 
+                class="w-full border rounded px-3 py-2 @error('address') border-red-500 @enderror" 
                 rows="2">{{ old('address') }}</textarea>
             @error('address')
                 <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
             @enderror
         </div>
+
         <div class="mb-4">
             <label class="block mb-1">
                 <span class="font-semibold">Phone</span>
-                <span class="text-sm text-gray-500">(Optional)</span>
+                <span class="text-gray-500 text-sm ml-1">(Optional)</span>
             </label>
             <input type="tel" 
                 name="phone" 
-                id="companyPhone"
-                class="w-full border rounded px-3 py-2 {{ $errors->has('phone') ? 'border-red-500' : '' }}" 
+                class="w-full border rounded px-3 py-2 @error('phone') border-red-500 @enderror" 
                 value="{{ old('phone') }}"
-                oninput="validatePhone(this)"
                 placeholder="e.g., +1234567890">
             @error('phone')
                 <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
             @enderror
-            <div id="phoneError" class="text-red-600 text-sm mt-1" style="display: none;"></div>
         </div>
+
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">Create</button>
         <a href="{{ route('companies.index') }}" class="ml-2 text-gray-600 hover:text-gray-800">Cancel</a>
-    </form>
-
-    <script>
-        function validateCompanyName(input) {
-            const errorDiv = document.getElementById('nameError');
-            const value = input.value.trim();
-            
-            if (value.length === 0) {
-                input.classList.add('border-red-500');
-                errorDiv.textContent = 'Company name is required';
-                errorDiv.style.display = 'block';
-                return false;
-            } else if (value.length < 2) {
-                input.classList.add('border-red-500');
-                errorDiv.textContent = 'Company name must be at least 2 characters long';
-                errorDiv.style.display = 'block';
-                return false;
-            } else {
-                input.classList.remove('border-red-500');
-                errorDiv.style.display = 'none';
-                return true;
-            }
-        }
-
-        function validatePhone(input) {
-            const errorDiv = document.getElementById('phoneError');
-            const value = input.value.trim();
-            
-            if (value.length > 0) {
-                // Basic phone number validation
-                const phoneRegex = /^\+?[\d\s-]{10,}$/;
-                if (!phoneRegex.test(value)) {
-                    input.classList.add('border-red-500');
-                    errorDiv.textContent = 'Please enter a valid phone number';
-                    errorDiv.style.display = 'block';
-                    return false;
-                }
-            }
-            
-            input.classList.remove('border-red-500');
-            errorDiv.style.display = 'none';
-            return true;
-        }
-
-        // Form submission validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const isNameValid = validateCompanyName(document.getElementById('companyName'));
-            const isPhoneValid = validatePhone(document.getElementById('companyPhone'));
-            
-            if (!isNameValid || !isPhoneValid) {
-                e.preventDefault();
-            }
-        });
-    </script>
     </form>
 </div>
 @endsection

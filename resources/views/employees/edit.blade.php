@@ -42,32 +42,34 @@
                         {{ $message }}
                     </div>
                 @enderror
-            </div>
-
-            <div class="mb-4">
-                <label class="block mb-1">
-                    <span class="font-semibold">Company</span>
-                    <span class="text-red-500 ml-1">*</span>
-                </label> 
-                <select name="company_id" id="company_id"
-                    class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
-                    <option value="">Select Company</option>
-                    @foreach ($companies as $company)
-                        <option value="{{ $company->id }}"
-                            {{ old('company_id', $employee->company_id) == $company->id ? 'selected' : '' }}>
-                            {{ $company->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('company_id')
-                    <div class="text-red-600 text-sm mt-1 flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                        </svg>
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
+            </div>            @if (auth()->user()->isSuperAdmin())
+                <div class="mb-4">
+                    <label class="block mb-1">
+                        <span class="font-semibold">Company</span>
+                        <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <select name="company_id" id="company_id"
+                        class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
+                        <option value="">Select Company</option>
+                        @foreach ($companies as $company)
+                            <option value="{{ $company->id }}"
+                                {{ old('company_id', $employee->company_id) == $company->id ? 'selected' : '' }}>
+                                {{ $company->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('company_id')
+                        <div class="text-red-600 text-sm mt-1 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+            @elseif(auth()->user()->isAdmin())
+                <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
+            @endif
 
             <div class="mb-4">
                 <label class="block mb-1">
@@ -230,14 +232,13 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Company and Department filtering
+        document.addEventListener('DOMContentLoaded', function() {            // Company and Department filtering
             const companySelect = document.getElementById('company_id');
             const departmentSelect = document.getElementById('department_id');
             const designationSelect = document.getElementById('designation_id');
+            const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
 
             function filterDepartments() {
-                const companyId = companySelect.value;
                 Array.from(departmentSelect.options).forEach(option => {
                     if (!option.value) return;
                     option.style.display = option.getAttribute('data-company') === companyId ? '' : 'none';
@@ -246,20 +247,17 @@
                     departmentSelect.value = '';
                 }
                 filterDesignations();
-            }
-
-            function filterDesignations() {
+            }            function filterDesignations() {
                 const departmentId = departmentSelect.value;
                 Array.from(designationSelect.options).forEach(option => {
                     if (!option.value) return;
-                    option.style.display = option.getAttribute('data-department') === departmentId ? '' : 'none';
+                    // Show all designations if no department selected, else show only matching ones
+                    option.style.display = (!departmentId || option.getAttribute('data-department') === departmentId) ? '' : 'none';
                 });
-                if (designationSelect.selectedOptions.length && designationSelect.selectedOptions[0].style.display === 'none') {
-                    designationSelect.value = '';
-                }
+            }// Only add company change listener if the select exists (for super admin)
+            if (companySelect) {
+                companySelect.addEventListener('change', filterDepartments);
             }
-
-            companySelect.addEventListener('change', filterDepartments);
             departmentSelect.addEventListener('change', filterDesignations);
             filterDepartments(); // Initial filter
         });

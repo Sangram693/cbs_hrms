@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-white p-6 rounded shadow max-w-lg mx-auto">
     <h2 class="text-xl font-bold mb-4">Add Salary</h2>
-    <form action="{{ route('salaries.store') }}" method="POST" id="salaryForm">
+    <form action="{{ route('salaries.store') }}" method="POST">
         @csrf
         <div class="mb-4">
             @php
@@ -16,12 +16,12 @@
                     <span class="text-red-500 ml-1">*</span>
                 </label>
                 <select name="employee_id" 
-                        id="employee_id"
-                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror" 
-                        required>
+                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror">
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                        <option value="{{ $employee->id }}" 
+                                {{ old('employee_id') == $employee->id ? 'selected' : '' }}
+                                data-salary="{{ $employee->salary ?? 0 }}">
                             {{ $employee->name }}
                         </option>
                     @endforeach
@@ -34,7 +34,6 @@
                         {{ $message }}
                     </div>
                 @enderror
-                <div id="employeeError" class="text-red-600 text-sm mt-1 hidden"></div>
             @else
                 <input type="hidden" name="employee_id" value="{{ auth()->user()->employee_id }}">
             @endif
@@ -47,10 +46,8 @@
             </label>
             <input type="month" 
                    name="salary_month" 
-                   id="salary_month"
                    class="w-full border rounded px-3 py-2 @error('salary_month') border-red-500 @enderror" 
-                   value="{{ old('salary_month') }}" 
-                   required>
+                   value="{{ old('salary_month') }}">
             @error('salary_month')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -59,7 +56,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="monthError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -69,7 +65,6 @@
             </label>
             <input type="date" 
                    name="paid_on" 
-                   id="paid_on"
                    class="w-full border rounded px-3 py-2 @error('paid_on') border-red-500 @enderror" 
                    value="{{ old('paid_on') }}">
             @error('paid_on')
@@ -80,7 +75,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="paidOnError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -90,12 +84,10 @@
             </label>
             <input type="number" 
                    name="base_salary" 
-                   id="base_salary"
-                   class="w-full border rounded px-3 py-2 @error('base_salary') border-red-500 @enderror" 
-                   value="{{ old('base_salary') }}" 
+                   class="w-full border rounded px-3 py-2 @error('base_salary') border-red-500 @enderror salary-input" 
+                   value="{{ old('base_salary') }}"
                    min="0"
-                   step="0.01"
-                   required>
+                   step="0.01">
             @error('base_salary')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -104,7 +96,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="baseSalaryError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -114,8 +105,7 @@
             </label>
             <input type="number" 
                    name="bonus" 
-                   id="bonus"
-                   class="w-full border rounded px-3 py-2 @error('bonus') border-red-500 @enderror" 
+                   class="w-full border rounded px-3 py-2 @error('bonus') border-red-500 @enderror salary-input" 
                    value="{{ old('bonus') }}"
                    min="0"
                    step="0.01">
@@ -127,7 +117,6 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="bonusError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
         <div class="mb-4">
@@ -137,8 +126,7 @@
             </label>
             <input type="number" 
                    name="deductions" 
-                   id="deductions"
-                   class="w-full border rounded px-3 py-2 @error('deductions') border-red-500 @enderror" 
+                   class="w-full border rounded px-3 py-2 @error('deductions') border-red-500 @enderror salary-input" 
                    value="{{ old('deductions') }}"
                    min="0"
                    step="0.01">
@@ -150,10 +138,9 @@
                     {{ $message }}
                 </div>
             @enderror
-            <div id="deductionsError" class="text-red-600 text-sm mt-1 hidden"></div>
         </div>
 
-        <input type="hidden" name="net_salary" id="net_salary" value="">
+        <input type="hidden" name="net_salary" value="0">
 
         <div class="flex items-center gap-2">
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
@@ -168,161 +155,37 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('salaryForm');
-    const base = document.getElementById('base_salary');
-    const bonus = document.getElementById('bonus');
-    const deductions = document.getElementById('deductions');
-    const net = document.getElementById('net_salary');
-    const month = document.getElementById('salary_month');
-    const paidOn = document.getElementById('paid_on');
-    const employeeSelect = document.getElementById('employee_id');
+    // Simple net salary calculation without validation
+    const employeeSelect = document.querySelector('select[name="employee_id"]');
+    const salaryInputs = document.querySelectorAll('.salary-input');
+    const netSalaryInput = document.querySelector('input[name="net_salary"]');
 
-    // Prepare employee salary map
-    const employeeSalaries = {
-        @foreach($employees as $employee)
-            '{{ $employee->id }}': {{ $employee->salary ?? 0 }},
-        @endforeach
-    };
-
-    function validateEmployee() {
-        if (!employeeSelect) return true;
-        const employeeError = document.getElementById('employeeError');
-        if (!employeeSelect.value) {
-            employeeSelect.classList.add('border-red-500');
-            employeeError.textContent = 'Please select an employee';
-            employeeError.classList.remove('hidden');
-            return false;
-        }
-        employeeSelect.classList.remove('border-red-500');
-        employeeError.classList.add('hidden');
-        return true;
-    }
-
-    function validateMonth() {
-        const monthError = document.getElementById('monthError');
-        if (!month.value) {
-            month.classList.add('border-red-500');
-            monthError.textContent = 'Please select a salary month';
-            monthError.classList.remove('hidden');
-            return false;
-        }
-        month.classList.remove('border-red-500');
-        monthError.classList.add('hidden');
-        return true;
-    }
-
-    function validatePaidOn() {
-        if (!paidOn.value) return true;
-        const paidOnError = document.getElementById('paidOnError');
-        const paidDate = new Date(paidOn.value);
-        const today = new Date();
+    function calculateNetSalary() {
+        const baseSalary = parseFloat(document.querySelector('input[name="base_salary"]').value) || 0;
+        const bonus = parseFloat(document.querySelector('input[name="bonus"]').value) || 0;
+        const deductions = parseFloat(document.querySelector('input[name="deductions"]').value) || 0;
         
-        if (paidDate > today) {
-            paidOn.classList.add('border-red-500');
-            paidOnError.textContent = 'Paid date cannot be in the future';
-            paidOnError.classList.remove('hidden');
-            return false;
-        }
-        paidOn.classList.remove('border-red-500');
-        paidOnError.classList.add('hidden');
-        return true;
+        const netSalary = baseSalary + bonus - deductions;
+        netSalaryInput.value = netSalary.toFixed(2);
     }
 
-    function validateBaseSalary() {
-        const baseSalaryError = document.getElementById('baseSalaryError');
-        if (!base.value || parseFloat(base.value) < 0) {
-            base.classList.add('border-red-500');
-            baseSalaryError.textContent = 'Please enter a valid base salary';
-            baseSalaryError.classList.remove('hidden');
-            return false;
-        }
-        base.classList.remove('border-red-500');
-        baseSalaryError.classList.add('hidden');
-        return true;
-    }
-
-    function validateBonus() {
-        if (!bonus.value) return true;
-        const bonusError = document.getElementById('bonusError');
-        if (parseFloat(bonus.value) < 0) {
-            bonus.classList.add('border-red-500');
-            bonusError.textContent = 'Bonus cannot be negative';
-            bonusError.classList.remove('hidden');
-            return false;
-        }
-        bonus.classList.remove('border-red-500');
-        bonusError.classList.add('hidden');
-        return true;
-    }
-
-    function validateDeductions() {
-        if (!deductions.value) return true;
-        const deductionsError = document.getElementById('deductionsError');
-        if (parseFloat(deductions.value) < 0) {
-            deductions.classList.add('border-red-500');
-            deductionsError.textContent = 'Deductions cannot be negative';
-            deductionsError.classList.remove('hidden');
-            return false;
-        }
-        deductions.classList.remove('border-red-500');
-        deductionsError.classList.add('hidden');
-        return true;
-    }
-
-    function calcNet() {
-        const b = parseFloat(base.value) || 0;
-        const bo = parseFloat(bonus.value) || 0;
-        const d = parseFloat(deductions.value) || 0;
-        net.value = (b + bo - d).toFixed(2);
-    }
-
-    // Event listeners for real-time validation
+    // Update base salary when employee is selected
     if (employeeSelect) {
         employeeSelect.addEventListener('change', function() {
-            validateEmployee();
-            const selectedId = this.value;
-            if (employeeSalaries[selectedId] !== undefined) {
-                base.value = employeeSalaries[selectedId];
-                calcNet();
-            }
+            const selectedOption = this.options[this.selectedIndex];
+            const baseSalary = selectedOption.dataset.salary || 0;
+            document.querySelector('input[name="base_salary"]').value = baseSalary;
+            calculateNetSalary();
         });
     }
 
-    month.addEventListener('change', validateMonth);
-    paidOn.addEventListener('change', validatePaidOn);
-    base.addEventListener('input', function() {
-        validateBaseSalary();
-        calcNet();
-    });
-    bonus.addEventListener('input', function() {
-        validateBonus();
-        calcNet();
-    });
-    deductions.addEventListener('input', function() {
-        validateDeductions();
-        calcNet();
-    });
-
-    // Calculate net salary on form submit
-    form.addEventListener('submit', function(e) {
-        const isEmployeeValid = validateEmployee();
-        const isMonthValid = validateMonth();
-        const isPaidOnValid = validatePaidOn();
-        const isBaseSalaryValid = validateBaseSalary();
-        const isBonusValid = validateBonus();
-        const isDeductionsValid = validateDeductions();
-
-        if (!isEmployeeValid || !isMonthValid || !isPaidOnValid || 
-            !isBaseSalaryValid || !isBonusValid || !isDeductionsValid) {
-            e.preventDefault();
-            return;
-        }
-
-        calcNet();
+    // Recalculate net salary when any salary-related input changes
+    salaryInputs.forEach(input => {
+        input.addEventListener('input', calculateNetSalary);
     });
 
     // Initial calculation
-    calcNet();
+    calculateNetSalary();
 });
 </script>
 @endsection
