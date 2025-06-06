@@ -38,32 +38,9 @@
                 @enderror
             @else
                 <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
-            @endif
-        </div>
+            @endif        </div>
 
-        <div class="mb-4">
-            <label class="block mb-1">
-                <span class="font-semibold">HR (Employee)</span>
-                <span class="text-gray-500 text-sm ml-1">(Optional)</span>
-            </label>
-            <select name="hr_id" 
-                class="w-full border rounded px-3 py-2 @error('hr_id') border-red-500 @enderror"
-                {{ $isSuperAdmin ? 'disabled' : '' }}>
-                <option value="">Select HR</option>
-                @foreach($employees as $employee)
-                    <option value="{{ $employee->id }}" 
-                        data-company="{{ $employee->company_id }}"
-                        {{ old('hr_id') == $employee->id ? 'selected' : '' }}>
-                        {{ $employee->name }} ({{ $employee->email }})
-                    </option>
-                @endforeach
-            </select>
-            @error('hr_id')
-                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+        <button type="submit"class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
             Create Department
         </button>
         <a href="{{ route('departments.index') }}" class="ml-2 text-gray-600 hover:text-gray-800">Cancel</a>

@@ -12,12 +12,10 @@
     @endif
     <div class="relative overflow-auto shadow-md" style="height: calc(100vh - 250px);">
         <table class="w-full text-sm text-left text-gray-500">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                <tr>                <th class="py-3 px-6 text-center">Name</th>
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100">                <tr>                <th class="py-3 px-6 text-center">Name</th>
                 @if(auth()->user()->isSuperAdmin())
                 <th class="py-3 px-6 text-center">Company</th>
                 @endif
-                <th class="py-3 px-6 text-center">HR (Employee)</th>
                 @if(!$isHr)
                 <th class="py-3 px-6 text-center">Actions</th>
                 @endif
@@ -29,7 +27,6 @@
                 @if(auth()->user()->isSuperAdmin())
                 <td class="py-3 px-6 text-center whitespace-nowrap">{{ $department->company->name ?? '-' }}</td>
                 @endif
-                <td class="py-3 px-6 text-center whitespace-nowrap">{{ $department->hr ? $department->hr->name . ' (' . $department->hr->email . ')' : '-' }}</td>
                 @if(!$isHr)
                 <td class="py-3 px-6 text-center whitespace-nowrap">
                     <div class="flex items-center justify-center space-x-3">
@@ -46,9 +43,8 @@
                     </div>
                 </td>
                 @endif
-            </tr>
-            @empty            <tr>
-                <td colspan="4" class="py-3 px-6 text-center">No departments found.</td>
+            </tr>            @empty            <tr>
+                <td colspan="{{ auth()->user()->isSuperAdmin() ? '3' : '2' }}" class="py-3 px-6 text-center">No departments found.</td>
             </tr>
             @endforelse
         </tbody>

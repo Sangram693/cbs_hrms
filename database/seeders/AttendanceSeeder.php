@@ -51,9 +51,16 @@ class AttendanceSeeder extends Seeder
                     $date = now()->subDays($i);
                     
                     // Skip weekends
-                    if ($date->isWeekend()) {
+                    if ($date->isSunday()) {
                         continue;
                     }
+
+                    if ($date->isSaturday()) {
+                        $weekOfMonth = $date->weekOfMonth;
+                        if ($weekOfMonth === 2 || $weekOfMonth === 4) {
+                            continue; // Skip 2nd and 4th Saturday
+                            }
+                        }
 
                     // Randomly select a pattern based on probabilities
                     $rand = rand(1, 100);

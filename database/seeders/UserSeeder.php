@@ -29,8 +29,8 @@ class UserSeeder extends Seeder
         foreach ($companies as $company) {
             // Create admin employee first
             $adminEmployee = \App\Models\Employee::create([
-                'name' => $company->name . ' Admin',
-                'email' => 'admin_' . strtolower($company->name) . '@example.com',
+                'name' => 'Dalbir Singh',
+                'email' => 'd.singh@velocetech.in',
                 'company_id' => $company->id,
                 'user_role' => 'admin',
                 'status' => 'Active',
