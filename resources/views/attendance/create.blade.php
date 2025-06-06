@@ -70,13 +70,11 @@
                 @error('date')
                     <div class="text-red-600 text-sm">{{ $message }}</div>
                 @enderror
-            </div>
-
-            <div class="mb-4">
+            </div>            <div class="mb-4">
                 <label class="block mb-1 font-semibold">Check In</label>
-                <input type="time" name="check_in"
+                <input type="time" name="check_in" id="check_in"
                     class="w-full border rounded px-3 py-2 @error('check_in') border-red-500 @enderror"
-                    value="{{ old('check_in') }}">
+                    value="{{ old('check_in') }}" step="1">
                 @error('check_in')
                     <div class="text-red-600 text-sm">{{ $message }}</div>
                 @enderror
@@ -84,9 +82,9 @@
 
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Check Out</label>
-                <input type="time" name="check_out"
+                <input type="time" name="check_out" id="check_out"
                     class="w-full border rounded px-3 py-2 @error('check_out') border-red-500 @enderror"
-                    value="{{ old('check_out') }}">
+                    value="{{ old('check_out') }}" step="1">
                 @error('check_out')
                     <div class="text-red-600 text-sm">{{ $message }}</div>
                 @enderror
@@ -153,7 +151,28 @@
                     checkInInput.value = '';
                     checkOutInput.value = '';
                 }
-            } // Initialize form state and setup event listeners
+            }            // Handle time input events
+            function handleTimeInput(input) {
+                input.addEventListener('change', function() {
+                    // Format the time to include seconds if they're not present
+                    let time = this.value;
+                    if (time && time.length === 5) {
+                        time += ':00';
+                        this.value = time;
+                    }
+                    // Blur the input to close the time picker
+                    this.blur();
+                });
+
+                // Close time picker on enter key
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        this.blur();
+                    }
+                });
+            }
+
+            // Initialize form state and setup event listeners
             document.addEventListener('DOMContentLoaded', function() {
                 handleStatusChange();
 
@@ -162,6 +181,12 @@
                     companySelect.addEventListener('change', handleCompanyChange);
                     handleCompanyChange(); // Run initially to set correct state
                 }
+
+                // Setup time input handlers
+                const checkInInput = document.getElementById('check_in');
+                const checkOutInput = document.getElementById('check_out');
+                handleTimeInput(checkInInput);
+                handleTimeInput(checkOutInput);
             });
         </script>
     </div>

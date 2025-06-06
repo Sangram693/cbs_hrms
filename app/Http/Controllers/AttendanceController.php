@@ -52,8 +52,9 @@ class AttendanceController extends Controller
         } else {
             $employees = collect();
         }
-        return view('attendance.create', compact('employees'));
-    }    // Store a newly created resource in storage.
+        return view('attendance.create', compact('employees'));    }
+
+    // Store a newly created resource in storage.
     public function store(Request $request)
     {
         $status = $request->input('status');
@@ -64,21 +65,51 @@ class AttendanceController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
             'status' => 'required|string|in:Present,Absent,Leave',
+        ];        // Validation messages
+        $messages = [
+            'company_id.required' => 'Please select a company.',
+            'company_id.exists' => 'The selected company does not exist in our records.',
+            'employee_id.required' => 'Please select an employee.',
+            'employee_id.exists' => 'The selected employee does not exist in our records.',
+            'date.required' => 'Please select the attendance date.',
+            'date.date' => 'The date format is invalid. Please use a valid date format.',
+            'status.required' => 'Please select the attendance status.',
+            'status.in' => 'Invalid status selected. Status must be Present, Absent, or Leave.',
+            'check_in.required' => 'For present status, check-in time is mandatory.',
+            'check_in.date_format' => 'Check-in time must be in 24-hour format (HH:MM).',
+            'check_out.required' => 'For present status, check-out time is mandatory.',
+            'check_out.date_format' => 'Check-out time must be in 24-hour format (HH:MM).',
         ];
 
         // Add conditional validation based on status
-        if ($status === 'Present') {
-            $rules['check_in'] = [
+        if ($status === 'Present') {            $rules['check_in'] = [
                 'required',
-                'date_format:H:i'
+                'date_format:H:i:s',
+                function ($attribute, $value, $fail) {
+                    try {
+                        if ($value) {
+                            \Carbon\Carbon::createFromFormat('H:i:s', $value);
+                        }
+                    } catch (\Exception $e) {
+                        \Carbon\Carbon::createFromFormat('H:i', $value);
+                    }
+                }
             ];
             $rules['check_out'] = [
                 'required',
-                'date_format:H:i',
+                'date_format:H:i:s',
                 function ($attribute, $value, $fail) use ($request) {
                     if ($value && $request->check_in) {
-                        $checkIn = \Carbon\Carbon::createFromFormat('H:i', $request->check_in);
-                        $checkOut = \Carbon\Carbon::createFromFormat('H:i', $value);
+                        try {
+                            // Try with seconds first
+                            $checkIn = \Carbon\Carbon::createFromFormat('H:i:s', $request->check_in);
+                            $checkOut = \Carbon\Carbon::createFromFormat('H:i:s', $value);
+                        } catch (\Exception $e) {
+                            // Fallback to hours and minutes only
+                            $checkIn = \Carbon\Carbon::createFromFormat('H:i', $request->check_in);
+                            $checkOut = \Carbon\Carbon::createFromFormat('H:i', $value);
+                        }
+                        
                         if ($checkOut->lte($checkIn)) {
                             $fail('Check-out time must be after check-in time.');
                         }
@@ -88,9 +119,7 @@ class AttendanceController extends Controller
         } else {
             $rules['check_in'] = 'nullable|date_format:H:i';
             $rules['check_out'] = 'nullable|date_format:H:i';
-        }
-
-        $validated = $request->validate($rules);
+        }        $validated = $request->validate($rules, $messages);
 
         // Additional validation: if status is Present, both check_in and check_out are required
         if ($validated['status'] === 'Present' && (!$validated['check_in'] || !$validated['check_out'])) {
@@ -130,32 +159,75 @@ class AttendanceController extends Controller
         }
         
         return view('attendance.edit', compact('attendance', 'employees'));
-    }
-
-    // Update the specified resource in storage.
+    }    // Update the specified resource in storage.
     public function update(Request $request, Attendance $attendance)
     {
-        $validated = $request->validate([
+        $status = $request->input('status');
+        
+        $rules = [
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
-            'check_in' => 'nullable|date_format:H:i',
-            'check_out' => [
-                'nullable',
-                'date_format:H:i',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($value && $request->check_in) {
-                        $checkIn = \Carbon\Carbon::createFromFormat('H:i', $request->check_in);
-                        $checkOut = \Carbon\Carbon::createFromFormat('H:i', $value);
-                        if ($checkOut->lte($checkIn)) {
-                            $fail('Check-out time must be after check-in time.');
+            'status' => 'required|string|in:Present,Absent,Leave',
+        ];        if ($status === 'Present') {
+            $rules['check_in'] = [
+                'required',
+                'date_format:H:i:s',
+                function ($attribute, $value, $fail) {
+                    try {
+                        \Carbon\Carbon::createFromFormat('H:i:s', $value);
+                    } catch (\Exception $e) {
+                        // If the time is in H:i format, append :00 for seconds
+                        if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $value)) {
+                            $value .= ':00';
+                        } else {
+                            $fail('Please enter check-in time in 24-hour format (HH:MM or HH:MM:SS).');
                         }
                     }
                 }
-            ],
-            'status' => 'required|string|in:Present,Absent,Leave',
-        ]);
+            ];
+            $rules['check_out'] = [
+                'required',
+                'date_format:H:i:s',
+                function ($attribute, $value, $fail) use ($request) {
+                    try {
+                        $checkIn = $request->check_in;
+                        $checkOut = $value;
+                        
+                        // If times are in H:i format, append :00 for seconds
+                        if (strlen($checkIn) === 5) $checkIn .= ':00';
+                        if (strlen($value) === 5) $checkOut .= ':00';
+                        
+                        $checkInTime = \Carbon\Carbon::createFromFormat('H:i:s', $checkIn);
+                        $checkOutTime = \Carbon\Carbon::createFromFormat('H:i:s', $checkOut);
+                        
+                        if ($checkOutTime->lte($checkInTime)) {
+                            $fail('Check-out time must be after check-in time.');
+                        }
+                    } catch (\Exception $e) {
+                        $fail('Please enter check-out time in 24-hour format (HH:MM or HH:MM:SS).');
+                    }
+                }
+            ];
+        } else {
+            $rules['check_in'] = 'nullable|date_format:H:i';
+            $rules['check_out'] = 'nullable|date_format:H:i';
+        }
 
-        // Additional validation: if status is Present, both check_in and check_out are required
+        $messages = [
+            'employee_id.required' => 'Please select an employee.',
+            'employee_id.exists' => 'The selected employee does not exist in our records.',
+            'date.required' => 'Please select the attendance date.',
+            'date.date' => 'The date format is invalid. Please use a valid date format.',
+            'check_in.required' => 'For present status, check-in time is mandatory.',
+            'check_in.date_format' => 'Check-in time must be in 24-hour format (HH:MM).',
+            'check_out.required' => 'For present status, check-out time is mandatory.',
+            'check_out.date_format' => 'Check-out time must be in 24-hour format (HH:MM).',
+            'status.required' => 'Please select the attendance status.',
+            'status.in' => 'Invalid status selected. Status must be Present, Absent, or Leave.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
+
         if ($validated['status'] === 'Present' && (!$validated['check_in'] || !$validated['check_out'])) {
             return redirect()->back()
                 ->withErrors(['check_in' => 'Both check-in and check-out times are required when status is Present'])

@@ -49,11 +49,19 @@ class AdminController extends Controller
             return response()->json(['message' => 'Only admins can create users.'], 403);
         }
 
-        // Validate input
+        // Validate input with custom messages
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8',
+        ], [
+            'name.required' => 'The employee name is required',
+            'name.max' => 'Employee name cannot be longer than 255 characters',
+            'email.required' => 'The email address is required',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email is already taken',
+            'password.required' => 'Password is required',
+            'password.min' => 'Password must be at least 8 characters long'
         ]);
 
         // Create a new employee user under the admin's company
@@ -170,6 +178,16 @@ class AdminController extends Controller
         if (!$company) {
             return response()->json(['message' => 'Company not found.'], 404);
         }
+        // Validate input with custom messages
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255'
+        ], [
+            'name.required' => 'Company name is required',
+            'name.max' => 'Company name cannot be longer than 255 characters',
+            'address.max' => 'Address cannot be longer than 255 characters'
+        ]);
+
         $company->update($request->only(['name', 'address']));
         return response()->json([
             'message' => 'Company updated successfully.',
@@ -224,6 +242,19 @@ class AdminController extends Controller
         if (!$targetUser) {
             return response()->json(['message' => 'User not found.'], 404);
         }
+
+        // Validate input with custom messages
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$targetUser->id
+        ], [
+            'name.required' => 'The employee name is required',
+            'name.max' => 'Employee name cannot be longer than 255 characters',
+            'email.required' => 'The email address is required',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email is already taken by another user'
+        ]);
+
         $targetUser->update($request->only(['name', 'email']));
         return response()->json([
             'message' => 'User updated successfully.',
