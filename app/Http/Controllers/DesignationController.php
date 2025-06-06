@@ -28,10 +28,11 @@ class DesignationController extends Controller
             $companies = \App\Models\Company::all();
             $departments = Department::with('company')->get();
         } else {
+            $companies = \App\Models\Company::where('id', $user->company_id)->get();
             $departments = Department::where('company_id', $user->company_id)->get();
         }
 
-        return view('designations.create', compact('departments', 'isSuperAdmin', isset($companies) ? 'companies' : ''));
+        return view('designations.create', compact('departments', 'isSuperAdmin', 'companies'));
     }
 
     public function store(Request $request)
@@ -65,9 +66,7 @@ class DesignationController extends Controller
         Designation::create($validated);
 
         return redirect()->route('designations.index')->with('success', 'Designation created successfully.');
-    }
-
-    public function edit(Designation $designation)
+    }    public function edit(Designation $designation)
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
@@ -76,10 +75,11 @@ class DesignationController extends Controller
             $companies = \App\Models\Company::all();
             $departments = Department::with('company')->get();
         } else {
+            $companies = \App\Models\Company::where('id', $user->company_id)->get();
             $departments = Department::where('company_id', $user->company_id)->get();
         }
 
-        return view('designations.edit', compact('designation', 'departments', 'isSuperAdmin', isset($companies) ? 'companies' : ''));
+        return view('designations.edit', compact('designation', 'departments', 'isSuperAdmin', 'companies'));
     }
 
     public function update(Request $request, Designation $designation)
