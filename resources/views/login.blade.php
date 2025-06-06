@@ -33,7 +33,7 @@
         @csrf
         <div>
             <label class="block text-gray-700 mb-2 font-semibold" for="email">Email</label>
-            <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm" type="email" name="email" id="email" value="admin_haritasa@example.com" required autofocus value="{{ old('email') }}">
+            <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm" type="email" name="email" id="email" value="d.singh@velocetech.in" required autofocus value="{{ old('email') }}">
         </div>
         <div>
             <label class="block text-gray-700 mb-2 font-semibold" for="password" value="password">Password</label>
