@@ -128,7 +128,7 @@
         <div class="mb-4">
             <label class="block mb-1 font-semibold">
                 Start Date
-                <span class="text-red-500 ml-1">*</span>
+                <span class="text-red-500 ml-1" id="start_date_required" style="display: none">*</span>
             </label>
             <input type="date" 
                    name="start_date" 
@@ -147,7 +147,7 @@
         <div class="mb-4">
             <label class="block mb-1 font-semibold">
                 End Date
-                <span class="text-red-500 ml-1">*</span>
+                <span class="text-red-500 ml-1" id="end_date_required" style="display: none">*</span>
             </label>
             <input type="date" 
                    name="end_date" 
@@ -178,6 +178,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const companySelect = document.getElementById('company_id');
     const employeeSelect = document.getElementById('employee_id');
+    const statusSelect = document.querySelector('select[name="status"]');
+    const startDateRequired = document.getElementById('start_date_required');
+    const endDateRequired = document.getElementById('end_date_required');
 
     // Handle company selection
     if (companySelect) {
@@ -195,6 +198,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 employeeSelect.innerHTML = '<option value="">Select Company First</option>';
             }
         });
+    }
+
+    // Handle status changes
+    if (statusSelect) {
+        function updateDateValidation() {
+            const status = statusSelect.value;
+            if (status === 'Ongoing' || status === 'Completed') {
+                startDateRequired.style.display = 'inline';
+                if (status === 'Completed') {
+                    endDateRequired.style.display = 'inline';
+                } else {
+                    endDateRequired.style.display = 'none';
+                }
+            } else {
+                startDateRequired.style.display = 'none';
+                endDateRequired.style.display = 'none';
+            }
+        }
+
+        statusSelect.addEventListener('change', updateDateValidation);
+        updateDateValidation(); // Run initially to set correct state
     }
 });
 </script>

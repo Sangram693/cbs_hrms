@@ -29,10 +29,15 @@ class LeaveTypeController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $companyId = $user->isSuperAdmin() ? $request->get('company_id') : $user->company_id;
-        $request->validate([
+        $companyId = $user->isSuperAdmin() ? $request->get('company_id') : $user->company_id;        $request->validate([
             'name' => 'required|string|max:255',
             'company_id' => 'required|exists:companies,id',
+        ], [
+            'name.required' => 'Leave type name is required',
+            'name.string' => 'Leave type name must be a valid text',
+            'name.max' => 'Leave type name cannot exceed 255 characters',
+            'company_id.required' => 'Company is required',
+            'company_id.exists' => 'Selected company does not exist'
         ]);
         LeaveType::create([
             'name' => $request->name,
@@ -58,7 +63,13 @@ class LeaveTypeController extends Controller
             $companyId = $user->company_id;
         }
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'name.required' => 'Leave type name is required',
+            'name.string' => 'Leave type name must be a valid text',
+            'name.max' => 'Leave type name cannot exceed 255 characters',
+            'company_id.required' => 'Company is required',
+            'company_id.exists' => 'Selected company does not exist'
+        ]);
         
         $leavetype->update([
             'name' => $request->name,

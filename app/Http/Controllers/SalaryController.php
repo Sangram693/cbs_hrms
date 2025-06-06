@@ -56,9 +56,7 @@ class SalaryController extends Controller
         }
         
         return view('salaries.create', compact('employees', 'companies', 'companyId'));
-    }
-
-    // Store a newly created resource in storage.
+    }    // Store a newly created resource in storage.
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -68,6 +66,15 @@ class SalaryController extends Controller
             'bonus' => 'nullable|numeric',
             'deductions' => 'nullable|numeric',
             'paid_on' => 'nullable|date',
+        ], [
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'salary_month.required' => 'Please select a salary month',
+            'base_salary.required' => 'Base salary is required',
+            'base_salary.numeric' => 'Base salary must be a valid number',
+            'bonus.numeric' => 'Bonus must be a valid number',
+            'deductions.numeric' => 'Deductions must be a valid number',
+            'paid_on.date' => 'Please enter a valid payment date'
         ]);
         // Convert salary_month (YYYY-MM) to YYYY-MM-01 for PostgreSQL date
         if (isset($validated['salary_month']) && strlen($validated['salary_month']) === 7) {
@@ -109,7 +116,7 @@ class SalaryController extends Controller
         return view('salaries.edit', compact('salary', 'employees', 'companies', 'companyId'));
     }
 
-    // Update the specified resource in storage.
+    // Update the specified resource in storage.    
     public function update(Request $request, Salary $salary)
     {
         $validated = $request->validate([
@@ -119,6 +126,15 @@ class SalaryController extends Controller
             'bonus' => 'nullable|numeric',
             'deductions' => 'nullable|numeric',
             'paid_on' => 'nullable|date',
+        ], [
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'salary_month.required' => 'Please select a salary month',
+            'base_salary.required' => 'Base salary is required',
+            'base_salary.numeric' => 'Base salary must be a valid number',
+            'bonus.numeric' => 'Bonus must be a valid number',
+            'deductions.numeric' => 'Deductions must be a valid number',
+            'paid_on.date' => 'Please enter a valid payment date'
         ]);
         if (isset($validated['salary_month']) && strlen($validated['salary_month']) === 7) {
             $validated['salary_month'] .= '-01';

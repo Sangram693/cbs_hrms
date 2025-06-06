@@ -99,12 +99,12 @@
                 @endif
             @endif
 
-            <h3 class="font-semibold text-lg mt-6 mb-3">Security</h3>
-            <div class="mb-6">
+            <h3 class="font-semibold text-lg mt-6 mb-3">Security</h3>            <div class="mb-4">
                 <label class="block mb-1 font-semibold">
                     Password 
                     <span class="text-gray-500 text-xs">(leave blank to keep current)</span>
-                </label>                <div class="relative">
+                </label>
+                <div class="relative">
                     <input class="w-full border rounded px-3 py-2 pr-10 @error('password') border-red-500 @enderror"
                            type="password"
                            name="password"
@@ -131,6 +131,38 @@
                 @enderror
             </div>
 
+            <div class="mb-6">
+                <label class="block mb-1 font-semibold">
+                    Confirm Password 
+                    <span class="text-gray-500 text-xs">(required if changing password)</span>
+                </label>
+                <div class="relative">
+                    <input class="w-full border rounded px-3 py-2 pr-10 @error('password_confirmation') border-red-500 @enderror"
+                           type="password"
+                           name="password_confirmation"
+                           id="password_confirmation">
+                    <div id="togglePasswordConfirmation" 
+                         class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 cursor-pointer">
+                        <svg class="h-5 w-5 eye-closed" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg class="h-5 w-5 eye-open hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                        </svg>
+                    </div>
+                </div>
+                @error('password_confirmation')
+                    <div class="text-red-600 text-sm mt-1 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
             <div class="flex justify-between items-center">
                 <button type="submit"
                     class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">Update
@@ -140,25 +172,31 @@
         </form>    </div>
 @endsection
 
-@push('scripts')
-    <script>
+@push('scripts')    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('togglePassword');
-            const password = document.getElementById('password');
-            const eyeOpen = toggle.querySelector('.eye-open');
-            const eyeClosed = toggle.querySelector('.eye-closed');
+            // Function to setup password toggle
+            function setupPasswordToggle(toggleId, passwordId) {
+                const toggle = document.getElementById(toggleId);
+                const password = document.getElementById(passwordId);
+                const eyeOpen = toggle.querySelector('.eye-open');
+                const eyeClosed = toggle.querySelector('.eye-closed');
 
-            toggle.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-            });
+                toggle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
 
-            toggle.addEventListener('click', function(e) {
-                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                password.setAttribute('type', type);
-                eyeOpen.classList.toggle('hidden');
-                eyeClosed.classList.toggle('hidden');
-                password.focus();
-            });
+                toggle.addEventListener('click', function(e) {
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    eyeOpen.classList.toggle('hidden');
+                    eyeClosed.classList.toggle('hidden');
+                    password.focus();
+                });
+            }
+
+            // Setup toggle for both password fields
+            setupPasswordToggle('togglePassword', 'password');
+            setupPasswordToggle('togglePasswordConfirmation', 'password_confirmation');
         });
     </script>
 @endpush

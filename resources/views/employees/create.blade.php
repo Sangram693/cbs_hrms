@@ -151,10 +151,9 @@
                 @enderror
             </div>
 
-            <div class="mb-4">
-                <label class="block mb-1">
+            <div class="mb-4"> <label class="block mb-1">
                     <span class="font-semibold">Employee ID</span>
-                    <span class="text-red-500 ml-1">*</span>
+                    <span class="text-gray-500 text-sm ml-1">(Optional)</span>
                 </label>
                 <input type="text" name="emp_id"
                     class="w-full border rounded px-3 py-2 @error('emp_id') border-red-500 @enderror"
@@ -249,18 +248,20 @@
 
             function filterDepartments() {
                 const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
-                
+
                 Array.from(departmentSelect.options).forEach(option => {
                     if (!option.value) return; // Skip the "Select Department" option
                     // Hide all options if no company selected, otherwise show only matching ones
-                    option.style.display = (companyId && option.getAttribute('data-company') === companyId) ? '' : 'none';
+                    option.style.display = (companyId && option.getAttribute('data-company') ===
+                        companyId) ? '' : 'none';
                 });
 
                 // Reset department selection if the selected option is now hidden
-                if (departmentSelect.selectedOptions[0] && departmentSelect.selectedOptions[0].style.display === 'none') {
+                if (departmentSelect.selectedOptions[0] && departmentSelect.selectedOptions[0].style.display ===
+                    'none') {
                     departmentSelect.value = '';
                 }
-                
+
                 filterDesignations();
             }
 
@@ -269,11 +270,13 @@
                 Array.from(designationSelect.options).forEach(option => {
                     if (!option.value) return; // Skip the "Select Designation" option
                     // Hide all options if no department selected, otherwise show only matching ones
-                    option.style.display = (departmentId && option.getAttribute('data-department') === departmentId) ? '' : 'none';
+                    option.style.display = (departmentId && option.getAttribute('data-department') ===
+                        departmentId) ? '' : 'none';
                 });
 
                 // Reset designation selection if the selected option is now hidden
-                if (designationSelect.selectedOptions[0] && designationSelect.selectedOptions[0].style.display === 'none') {
+                if (designationSelect.selectedOptions[0] && designationSelect.selectedOptions[0].style.display ===
+                    'none') {
                     designationSelect.value = '';
                 }
             }

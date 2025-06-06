@@ -76,13 +76,13 @@ class EmployeeController extends Controller
             $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
             if (!$hrDepartments->contains($request->department_id)) {
                 abort(403, 'You do not have HR permissions for this department.');
-            }
-        }
+            }        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email',            'emp_id' => 'nullable|string|unique:employees,emp_id',
-            'phone' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:employees,email',            
+            'emp_id' => 'nullable|string|unique:employees,emp_id',
+            'phone' => 'nullable|string|regex:/^\d{10}$/',
             'salary' => 'nullable|numeric|min:0',
             'designation_id' => 'nullable|exists:designations,id',
             'department_id' => 'nullable|exists:departments,id',
@@ -90,8 +90,26 @@ class EmployeeController extends Controller
             'user_role' => ['required', 'in:' . implode(',', $allowedRoles)],
             'fingerprint_id' => 'nullable|string|unique:employees,fingerprint_id',
             'hire_date' => 'nullable|date',
-            // Add other fields as needed
+        ], [
+            'name.required' => 'Employee name is required',
+            'name.max' => 'Employee name cannot exceed 255 characters',
+            'email.required' => 'Email address is required',
+            'email.email' => 'Please provide a valid email address',
+            'email.unique' => 'This email address is already registered',
+            'emp_id.unique' => 'This employee ID is already in use',
+            'phone.max' => 'Phone number cannot exceed 255 characters',
+            'salary.numeric' => 'Salary must be a numeric value',
+            'salary.min' => 'Salary cannot be negative',
+            'designation_id.exists' => 'Selected designation does not exist',
+            'department_id.exists' => 'Selected department does not exist',
+            'company_id.required' => 'Company is required',
+            'company_id.exists' => 'Selected company does not exist',
+            'user_role.required' => 'User role is required',
+            'user_role.in' => 'Selected role is not valid',
+            'fingerprint_id.unique' => 'This fingerprint ID is already in use',
+            'hire_date.date' => 'Please provide a valid hire date'
         ]);
+
         $validated['status'] = 'Active';
         $employee = Employee::create($validated);        // Sync to User table
         \App\Models\User::create([
@@ -156,8 +174,9 @@ class EmployeeController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email,' . $employee->id,            'emp_id' => 'nullable|string|unique:employees,emp_id,' . $employee->id,
-            'phone' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:employees,email,' . $employee->id,           
+            'emp_id' => 'nullable|string|unique:employees,emp_id,' . $employee->id,
+            'phone' => 'nullable|string|regex:/^\d{10}$/',
             'salary' => 'nullable|numeric|min:0',
             'designation_id' => 'nullable|exists:designations,id',
             'department_id' => 'nullable|exists:departments,id',
@@ -165,7 +184,24 @@ class EmployeeController extends Controller
             'user_role' => ['required', 'in:' . implode(',', $allowedRoles)],
             'fingerprint_id' => 'nullable|string|unique:employees,fingerprint_id,' . $employee->id,
             'hire_date' => 'nullable|date',
-            // Add other fields as needed
+        ], [
+            'name.required' => 'Employee name is required',
+            'name.max' => 'Employee name cannot exceed 255 characters',
+            'email.required' => 'Email address is required',
+            'email.email' => 'Please provide a valid email address',
+            'email.unique' => 'This email address is already registered',
+            'emp_id.unique' => 'This employee ID is already in use',
+            'phone.max' => 'Phone number cannot exceed 255 characters',
+            'salary.numeric' => 'Salary must be a numeric value',
+            'salary.min' => 'Salary cannot be negative',
+            'designation_id.exists' => 'Selected designation does not exist',
+            'department_id.exists' => 'Selected department does not exist',
+            'company_id.required' => 'Company is required',
+            'company_id.exists' => 'Selected company does not exist',
+            'user_role.required' => 'User role is required',
+            'user_role.in' => 'Selected role is not valid',
+            'fingerprint_id.unique' => 'This fingerprint ID is already in use',
+            'hire_date.date' => 'Please provide a valid hire date'
         ]);
         $validated['user_role'] = $request->input('user_role', $employee->user_role ?? 'employee');
         $employee->update($validated);

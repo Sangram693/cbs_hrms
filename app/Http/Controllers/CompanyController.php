@@ -31,11 +31,19 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'name.required' => 'Company name is required.',
+            'name.string' => 'Company name must be text.',
+            'name.max' => 'Company name cannot exceed 255 characters.',
+            'address.max' => 'Company address cannot exceed 255 characters.',
+            'phone.regex' => 'Phone number must be exactly 10 digits.'
+        ];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-        ]);
+            'phone' => 'nullable|string|regex:/^\d{10}$/',
+        ], $messages);
         Company::create($validated);
         return redirect()->route('companies.index')->with('success', 'Company created successfully.');
     }
@@ -61,11 +69,19 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
+        $messages = [
+            'name.required' => 'Company name is required.',
+            'name.string' => 'Company name must be text.',
+            'name.max' => 'Company name cannot exceed 255 characters.',
+            'address.max' => 'Company address cannot exceed 255 characters.',
+            'phone.regex' => 'Phone number must be exactly 10 digits.'
+        ];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-        ]);
+            'phone' => 'nullable|string|regex:/^\d{10}$/',
+        ], $messages);
         $company->update($validated);
         return redirect()->route('companies.index')->with('success', 'Company updated successfully.');
     }

@@ -19,20 +19,29 @@ class ProfileController extends Controller
         $user = $request->user();
         $employee = $user->isSuperAdmin() ? null : $user->employee;
 
-        
-
-        $rules = [
+            $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6',
-        ];
-
-        // Add employee-specific validation rules if not superadmin
+            'password' => 'nullable|string|min:8|confirmed',
+            'password_confirmation' => 'nullable|string|min:8',
+        ];        // Add employee-specific validation rules if not superadmin
         if (!$user->isSuperAdmin() && $employee) {
-            $rules['phone'] = 'nullable|string|max:255';
+            $rules['phone'] = 'nullable|string|regex:/^\d{10}$/';
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'name.required' => 'Name is required',
+            'name.string' => 'Name must be text',
+            'name.max' => 'Name cannot exceed 255 characters',
+            'email.required' => 'Email address is required',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email address is already taken',
+            'password.min' => 'Password must be at least 8 characters',            'password.confirmed' => 'Password confirmation does not match',
+            'password_confirmation.min' => 'Password confirmation must be at least 8 characters',
+            'phone.regex' => 'Phone number must be exactly 10 digits'
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Update user
         $user->name = $validated['name'];

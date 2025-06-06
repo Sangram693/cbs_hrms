@@ -144,10 +144,9 @@
                 @enderror
             </div>
 
-            <div class="mb-4">
-                <label class="block mb-1">
+            <div class="mb-4">                <label class="block mb-1">
                     <span class="font-semibold">Employee ID</span>
-                    <span class="text-red-500 ml-1">*</span>
+                    <span class="text-gray-500 text-sm ml-1">(Optional)</span>
                 </label>
                 <input type="text" 
                     name="emp_id" 

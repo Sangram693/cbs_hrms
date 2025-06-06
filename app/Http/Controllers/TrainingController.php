@@ -58,9 +58,10 @@ class TrainingController extends Controller
         }
 
         return view('trainings.create', compact('employees', 'companies', 'companyId'));
-    }    // Store a newly created resource in storage.
+    }    // Store a newly created resource in storage.      
     public function store(Request $request)
-    {        $status = $request->input('status');
+    {
+        $status = $request->input('status');
         $rules = [
             'training_name' => 'required|string|max:255',
             'employee_id' => 'required|exists:employees,id',
@@ -69,15 +70,30 @@ class TrainingController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
 
-        // Add conditional validation based on status
-        if ($status === 'Ongoing') {
+        $messages = [
+            'training_name.required' => 'Training name is required',
+            'training_name.string' => 'Training name must be text',
+            'training_name.max' => 'Training name cannot exceed 255 characters',
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'status.required' => 'Please select a training status',
+            'status.in' => 'Selected status is invalid',
+            'start_date.required' => 'Start date is required',
+            'start_date.date' => 'Please enter a valid start date',
+            'end_date.required' => 'End date is required',
+            'end_date.date' => 'Please enter a valid end date',
+            'end_date.after_or_equal' => 'End date must be equal to or after start date'
+        ];
+
+        // Modify rules based on status
+        if ($status === 'Ongoing' || $status === 'Completed') {
             $rules['start_date'] = 'required|date';
-        } elseif ($status === 'Completed') {
-            $rules['start_date'] = 'required|date';
-            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+            if ($status === 'Completed') {
+                $rules['end_date'] = 'required|date|after_or_equal:start_date';
+            }
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, $messages);
 
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
@@ -119,9 +135,10 @@ class TrainingController extends Controller
         }
 
         return view('trainings.edit', compact('training', 'employees', 'companies', 'companyId'));
-    }    // Update the specified resource in storage.
+    }    // Update the specified resource in storage.     
     public function update(Request $request, Training $training)
-    {        $status = $request->input('status');
+    {
+        $status = $request->input('status');
         $rules = [
             'training_name' => 'required|string|max:255',
             'employee_id' => 'required|exists:employees,id',
@@ -130,15 +147,30 @@ class TrainingController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
 
-        // Add conditional validation based on status
-        if ($status === 'Ongoing') {
+        $messages = [
+            'training_name.required' => 'Training name is required',
+            'training_name.string' => 'Training name must be text',
+            'training_name.max' => 'Training name cannot exceed 255 characters',
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'status.required' => 'Please select a training status',
+            'status.in' => 'Selected status is invalid',
+            'start_date.required' => 'Start date is required',
+            'start_date.date' => 'Please enter a valid start date',
+            'end_date.required' => 'End date is required',
+            'end_date.date' => 'Please enter a valid end date',
+            'end_date.after_or_equal' => 'End date must be equal to or after start date'
+        ];
+
+        // Modify rules based on status
+        if ($status === 'Ongoing' || $status === 'Completed') {
             $rules['start_date'] = 'required|date';
-        } elseif ($status === 'Completed') {
-            $rules['start_date'] = 'required|date';
-            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+            if ($status === 'Completed') {
+                $rules['end_date'] = 'required|date|after_or_equal:start_date';
+            }
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, $messages);
 
         $user = auth()->user();
         if ($user->isSuperAdmin()) {

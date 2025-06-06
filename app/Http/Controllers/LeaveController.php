@@ -66,6 +66,19 @@ class LeaveController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
             'approved_by' => 'nullable|integer|exists:employees,id',
+        ], [
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'leave_type.required' => 'Please select a leave type',
+            'leave_type.string' => 'Leave type must be a valid text',
+            'start_date.required' => 'Start date is required',
+            'start_date.date' => 'Please enter a valid start date',
+            'end_date.required' => 'End date is required',
+            'end_date.date' => 'Please enter a valid end date',
+            'end_date.after_or_equal' => 'End date must be equal to or after start date',
+            'reason.required' => 'Please provide a reason for the leave',
+            'reason.string' => 'Reason must be a valid text',
+            'approved_by.exists' => 'Selected approver does not exist'
         ]);
         
         // Get employee and their company ID
@@ -126,8 +139,7 @@ class LeaveController extends Controller
             }
         } else {
             $employees = collect();
-        }
-        $validated = $request->validate([
+        }        $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'company_id' => 'required|exists:companies,id',
             'start_date' => 'required|date',
@@ -135,6 +147,24 @@ class LeaveController extends Controller
             'leave_type' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'reason' => 'required|string',
+        ], [
+            'employee_id.required' => 'Please select an employee',
+            'employee_id.exists' => 'Selected employee does not exist',
+            'company_id.required' => 'Company is required',
+            'company_id.exists' => 'Selected company does not exist',
+            'start_date.required' => 'Start date is required',
+            'start_date.date' => 'Please enter a valid start date',
+            'end_date.required' => 'End date is required',
+            'end_date.date' => 'Please enter a valid end date',
+            'end_date.after_or_equal' => 'End date must be equal to or after start date',
+            'leave_type.required' => 'Please select a leave type',
+            'leave_type.string' => 'Leave type must be a valid text',
+            'leave_type.max' => 'Leave type cannot exceed 255 characters',
+            'status.required' => 'Please select a status',
+            'status.string' => 'Status must be a valid text',
+            'status.max' => 'Status cannot exceed 255 characters',
+            'reason.required' => 'Please provide a reason for the leave',
+            'reason.string' => 'Reason must be a valid text'
         ]);
         $leave->update($validated);
         return redirect()->route('leaves.index')->with('success', 'Leave updated successfully.');
