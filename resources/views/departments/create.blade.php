@@ -18,19 +18,19 @@
             @error('name')
                 <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
             @enderror
-        </div>
-
-        <div class="mb-4">
-            @if($isSuperAdmin)
+        </div>        <div class="mb-4">
+            @if(auth()->user()->isSuperAdmin())
                 <label class="block mb-1">
                     <span class="font-semibold">Company</span>
                     <span class="text-red-500 ml-1">*</span>
                 </label>
-                <select name="company_id" 
+                <select name="company_id" id="company_id"
                     class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
                     <option value="">Select Company</option>
                     @foreach($companies as $company)
-                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                            {{ $company->name }}
+                        </option>
                     @endforeach
                 </select>
                 @error('company_id')
@@ -47,10 +47,13 @@
                 <span class="text-gray-500 text-sm ml-1">(Optional)</span>
             </label>
             <select name="hr_id" 
-                class="w-full border rounded px-3 py-2 @error('hr_id') border-red-500 @enderror">
+                class="w-full border rounded px-3 py-2 @error('hr_id') border-red-500 @enderror"
+                {{ $isSuperAdmin ? 'disabled' : '' }}>
                 <option value="">Select HR</option>
                 @foreach($employees as $employee)
-                    <option value="{{ $employee->id }}" {{ old('hr_id') == $employee->id ? 'selected' : '' }}>
+                    <option value="{{ $employee->id }}" 
+                        data-company="{{ $employee->company_id }}"
+                        {{ old('hr_id') == $employee->id ? 'selected' : '' }}>
                         {{ $employee->name }} ({{ $employee->email }})
                     </option>
                 @endforeach
@@ -66,4 +69,30 @@
         <a href="{{ route('departments.index') }}" class="ml-2 text-gray-600 hover:text-gray-800">Cancel</a>
     </form>
 </div>
+
+@if($isSuperAdmin)
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companySelect = document.querySelector('select[name="company_id"]');
+    const hrSelect = document.querySelector('select[name="hr_id"]');
+    
+    function filterHrOptions() {
+        const selectedCompanyId = companySelect.value;
+        hrSelect.disabled = !selectedCompanyId;
+        
+        Array.from(hrSelect.options).forEach(option => {
+            if (option.value === '') return; // Skip the placeholder option
+            const companyId = option.getAttribute('data-company');
+            option.style.display = !selectedCompanyId || companyId === selectedCompanyId ? '' : 'none';
+        });
+
+        // Reset HR selection if company changes
+        hrSelect.value = '';
+    }
+
+    companySelect.addEventListener('change', filterHrOptions);
+    filterHrOptions(); // Run initially to set correct state
+});
+</script>
+@endif
 @endsection

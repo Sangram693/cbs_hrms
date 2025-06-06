@@ -16,16 +16,26 @@ class DepartmentController extends Controller
             $departments = Department::where('company_id', $user->company_id)->get();
         }
         return view('departments.index', compact('departments'));
-    }
-
-    public function create()
+    }    public function create()
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $companies = $isSuperAdmin ? \App\Models\Company::all() : null;
-        // Provide employees for HR selection
-        $employees = collect(); // No employees to select when creating a department
-        return view('departments.create', compact('companies', 'isSuperAdmin', 'employees'));
+
+        if ($isSuperAdmin) {
+            $companies = \App\Models\Company::all();
+            // Get all active employees for superadmin
+            $employees = \App\Models\Employee::where('status', 'Active')
+                ->with('company')
+                ->get();
+        } else {
+            $companies = \App\Models\Company::where('id', $user->company_id)->get();
+            // Get only employees from the admin's company
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)
+                ->where('status', 'Active')
+                ->get();
+        }
+
+        return view('departments.create', compact('companies', 'employees', 'isSuperAdmin'));
     }
 
     public function store(Request $request)
@@ -38,27 +48,44 @@ class DepartmentController extends Controller
         if ($isSuperAdmin) {
             $rules['company_id'] = 'required|exists:companies,id';
         }
-        $rules['hr_id'] = 'nullable|exists:employees,id';
+        if ($request->has('hr_id')) {
+            $rules['hr_id'] = 'nullable|exists:employees,id';
+            // Validate that the HR belongs to the same company
+            if ($isSuperAdmin && $request->filled('hr_id') && $request->filled('company_id')) {
+                $employee = \App\Models\Employee::find($request->hr_id);
+                if ($employee && $employee->company_id != $request->company_id) {
+                    return back()->withErrors(['hr_id' => 'The selected HR must belong to the selected company.'])->withInput();
+                }
+            }
+        }
+        
         $validated = $request->validate($rules);
         if (!$isSuperAdmin) {
             $validated['company_id'] = $user->company_id;
         }
-        $validated['hr_id'] = $request->input('hr_id');
+        
         \App\Models\Department::create($validated);
         return redirect()->route('departments.index')->with('success', 'Department created successfully.');
-    }
-
-    public function edit(Department $department)
+    }    public function edit(Department $department)
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
         $companies = $isSuperAdmin ? \App\Models\Company::all() : null;
-        // Provide employees for HR selection only on edit, not on create
-        $employees = ($department->exists)
-            ? ($isSuperAdmin
-                ? \App\Models\Employee::all()
-                : \App\Models\Employee::where('company_id', $user->company_id)->get())
-            : collect();
+
+        if ($department->exists) {
+            if ($isSuperAdmin) {
+                $employees = \App\Models\Employee::where('status', 'Active')
+                    ->with('company')
+                    ->get();
+            } else {
+                $employees = \App\Models\Employee::where('company_id', $user->company_id)
+                    ->where('status', 'Active')
+                    ->get();
+            }
+        } else {
+            $employees = collect();
+        }
+
         return view('departments.edit', compact('department', 'companies', 'isSuperAdmin', 'employees'));
     }
 

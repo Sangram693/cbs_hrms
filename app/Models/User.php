@@ -51,14 +51,7 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class, 'id', 'id');
     }
 
-    public function isDepartmentHr($departmentId)
-    {
-        $employee = $this->employee;
-        if (!$employee) return false;
-        return \App\Models\Department::where('id', $departmentId)->where('hr_id', $employee->id)->exists();
-    }
-
-     public function isUser(): bool
+    public function isUser(): bool
     {
         return $this->role === 'user';
     }

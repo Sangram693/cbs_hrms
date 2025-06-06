@@ -22,7 +22,33 @@
                     {{ $message }}
                 </div>
             @enderror
+        </div>        @if($isSuperAdmin)
+        <div class="mb-4">
+            <label class="block mb-1">
+                <span class="font-semibold">Company</span>
+                <span class="text-red-500 ml-1">*</span>
+            </label>
+            <select name="company_id" id="company_id"
+                class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
+                <option value="">Select Company</option>
+                @foreach($companies as $company)
+                    <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                        {{ $company->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('company_id')
+                <div class="text-red-600 text-sm mt-1 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
+        @else
+            <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
+        @endif
 
         <div class="mb-4">
             <label class="block mb-1">
@@ -30,10 +56,13 @@
                 <span class="text-red-500 ml-1">*</span>
             </label>
             <select name="department_id" 
-                class="w-full border rounded px-3 py-2 @error('department_id') border-red-500 @enderror">
+                class="w-full border rounded px-3 py-2 @error('department_id') border-red-500 @enderror"
+                {{ $isSuperAdmin ? 'disabled' : '' }}>
                 <option value="">Select Department</option>
                 @foreach($departments as $department)
-                    <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                    <option value="{{ $department->id }}" 
+                        data-company="{{ $department->company_id }}"
+                        {{ old('department_id') == $department->id ? 'selected' : '' }}>
                         {{ $department->name }}
                     </option>
                 @endforeach
@@ -55,7 +84,32 @@
             <a href="{{ route('designations.index') }}" class="text-gray-600 hover:text-gray-800 transition-colors">
                 Cancel
             </a>
-        </div>
-    </form>
+        </div>    </form>
 </div>
+
+@if($isSuperAdmin)
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companySelect = document.querySelector('select[name="company_id"]');
+    const departmentSelect = document.querySelector('select[name="department_id"]');
+    
+    function filterDepartmentOptions() {
+        const selectedCompanyId = companySelect.value;
+        departmentSelect.disabled = !selectedCompanyId;
+        
+        Array.from(departmentSelect.options).forEach(option => {
+            if (option.value === '') return; // Skip the placeholder option
+            const companyId = option.getAttribute('data-company');
+            option.style.display = !selectedCompanyId || companyId === selectedCompanyId ? '' : 'none';
+        });
+
+        // Reset department selection when company changes
+        departmentSelect.value = '';
+    }
+
+    companySelect.addEventListener('change', filterDepartmentOptions);
+    filterDepartmentOptions(); // Run initially to set correct state
+});
+</script>
+@endif
 @endsection

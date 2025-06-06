@@ -34,8 +34,16 @@ class TrainingController extends Controller
     public function create()
     {
         $user = auth()->user();
+        $companies = null;
+        $companyId = null;
+        $employees = collect();
+
         if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
+            $companies = \App\Models\Company::all();
+            $companyId = request()->input('company_id');
+            if ($companyId) {
+                $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+            }
         } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
         } elseif ($user->isUser() && $user->employee) {
@@ -48,7 +56,8 @@ class TrainingController extends Controller
         } else {
             $employees = collect();
         }
-        return view('trainings.create', compact('employees'));
+
+        return view('trainings.create', compact('employees', 'companies', 'companyId'));
     }    // Store a newly created resource in storage.
     public function store(Request $request)
     {        $status = $request->input('status');
@@ -86,8 +95,16 @@ class TrainingController extends Controller
     public function edit(Training $training)
     {
         $user = auth()->user();
+        $companies = null;
+        $companyId = null;
+        $employees = collect();
+
         if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
+            $companies = \App\Models\Company::all();
+            $companyId = request()->input('company_id', $training->company_id);
+            if ($companyId) {
+                $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+            }
         } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
         } elseif ($user->isUser() && $user->employee) {
@@ -100,7 +117,8 @@ class TrainingController extends Controller
         } else {
             $employees = collect();
         }
-        return view('trainings.edit', compact('training', 'employees'));
+
+        return view('trainings.edit', compact('training', 'employees', 'companies', 'companyId'));
     }    // Update the specified resource in storage.
     public function update(Request $request, Training $training)
     {        $status = $request->input('status');

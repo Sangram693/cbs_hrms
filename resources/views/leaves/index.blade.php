@@ -13,7 +13,8 @@
             @endif
         </div>
         <div class="relative overflow-auto shadow-md" style="height: calc(100vh - 250px);">
-            <table class="w-full text-sm text-left text-gray-500">                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
                         @if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
                             <th class="py-3 px-6 text-center">Employee</th>
@@ -28,7 +29,8 @@
                         <th class="py-3 px-6 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">                    @forelse($leaves as $leave)
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($leaves as $leave)
                         <tr class="hover:bg-gray-50">
                             @if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr())
                                 <td class="py-3 px-6 text-center whitespace-nowrap">
@@ -50,17 +52,21 @@
                             </td>
                             <td class="py-3 px-6 text-center whitespace-nowrap">{{ $leave->start_date }}</td>
                             <td class="py-3 px-6 text-center whitespace-nowrap">{{ $leave->end_date }}</td>
-                            <td class="py-3 px-6 text-center whitespace-nowrap">                                @php
-                                    $statusColor =
-                                        [
-                                            'Pending' => 'bg-yellow-100 text-yellow-800',
-                                            'Approved' => 'bg-green-100 text-green-800',
-                                            'Rejected' => 'bg-red-100 text-red-800',
-                                        ][$leave->status] ?? 'bg-gray-100 text-gray-800';
-                                    $canChangeStatus = auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr();
-                                @endphp
-                                <span class="px-3 py-1 rounded font-semibold {{ $canChangeStatus ? 'pending-status' : '' }} {{ $statusColor }}"
-                                    @if($canChangeStatus) data-leave-id="{{ $leave->id }}" @endif
+                            <td class="py-3 px-6 text-center whitespace-nowrap"> @php
+                                $statusColor =
+                                    [
+                                        'Pending' => 'bg-yellow-100 text-yellow-800',
+                                        'Approved' => 'bg-green-100 text-green-800',
+                                        'Rejected' => 'bg-red-100 text-red-800',
+                                    ][$leave->status] ?? 'bg-gray-100 text-gray-800';
+                                $canChangeStatus =
+                                    auth()->user()->isSuperAdmin() ||
+                                    auth()->user()->isAdmin() ||
+                                    auth()->user()->isHr();
+                            @endphp
+                                <span
+                                    class="px-3 py-1 rounded font-semibold {{ $canChangeStatus ? 'pending-status' : '' }} {{ $statusColor }}"
+                                    @if ($canChangeStatus) data-leave-id="{{ $leave->id }}" @endif
                                     style="{{ $canChangeStatus && $leave->status === 'Pending' ? 'cursor:pointer; text-decoration:underline;' : '' }}">
                                     {{ $leave->status }}
                                 </span>
@@ -99,9 +105,10 @@
                                     @endif
                                 </div>
                             </td>
-                        </tr>                    @empty
+                    </tr> @empty
                         <tr>
-                            <td colspan="{{ (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr()) ? (auth()->user()->isSuperAdmin() ? 7 : 6) : 5 }}" class="py-3 px-6 text-center">No leave records found.</td>
+                            <td colspan="{{ auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr() ? (auth()->user()->isSuperAdmin() ? 7 : 6) : 5 }}"
+                                class="py-3 px-6 text-center">No leave records found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -179,95 +186,108 @@
 @endsection
 {{-- 
 @section('scripts') --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pendingStatuses = document.querySelectorAll('.pending-status');
-            pendingStatuses.forEach(function(element) {
-                if (element.textContent.trim() === 'Pending') {
-                    element.addEventListener('click', function() {
-                        const leaveId = this.getAttribute('data-leave-id');
-                        if (!leaveId) return;
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pendingStatuses = document.querySelectorAll('.pending-status');
+        pendingStatuses.forEach(function(element) {
+            if (element.textContent.trim() === 'Pending') {
+                element.addEventListener('click', function() {
+                    const leaveId = this.getAttribute('data-leave-id');
+                    if (!leaveId) return;
 
-                        fetch(`/leaves/${leaveId}`)
-                            .then(response => response.ok ? response.json() : Promise.reject('Not found'))
-                            .then(data => {
-                                let empDisplay = '';
-                                if (data.employee && (data.employee.name || data.employee.emp_id)) {
-                                    empDisplay = `<div>${data.employee.name ?? ''}</div>`;
-                                    if (data.employee.emp_id) {
-                                        empDisplay += `<div class='text-xs text-gray-500'>(${data.employee.emp_id})</div>`;
-                                    }
-                                } else if (data.employee_id && data.employee_name) {
-                                    empDisplay = `<div>${data.employee_name}</div>`;
-                                    if (data.employee_emp_id) {
-                                        empDisplay += `<div class='text-xs text-gray-500'>(${data.employee_emp_id})</div>`;
-                                    }
-                                } else if (data.employee_id) {
-                                    const row = this.closest('tr');
-                                    if (row) {
-                                        const empCell = row.querySelector('td');
-                                        empDisplay = empCell ? empCell.innerHTML.trim() : data.employee_id;
-                                    } else {
-                                        empDisplay = data.employee_id;
-                                    }
-                                } else {
-                                    empDisplay = '-';
+                    fetch(`/leaves/${leaveId}`)
+                        .then(response => response.ok ? response.json() : Promise.reject(
+                            'Not found'))
+                        .then(data => {
+                            let empDisplay = '';
+                            if (data.employee && (data.employee.name || data.employee
+                                    .emp_id)) {
+                                empDisplay = `<div>${data.employee.name ?? ''}</div>`;
+                                if (data.employee.emp_id) {
+                                    empDisplay +=
+                                        `<div class='text-xs text-gray-500'>(${data.employee.emp_id})</div>`;
                                 }
+                            } else if (data.employee_id && data.employee_name) {
+                                empDisplay = `<div>${data.employee_name}</div>`;
+                                if (data.employee_emp_id) {
+                                    empDisplay +=
+                                        `<div class='text-xs text-gray-500'>(${data.employee_emp_id})</div>`;
+                                }
+                            } else if (data.employee_id) {
+                                const row = this.closest('tr');
+                                if (row) {
+                                    const empCell = row.querySelector('td');
+                                    empDisplay = empCell ? empCell.innerHTML.trim() : data
+                                        .employee_id;
+                                } else {
+                                    empDisplay = data.employee_id;
+                                }
+                            } else {
+                                empDisplay = '-';
+                            }
 
-                                document.getElementById('leave-modal-employee').innerHTML = empDisplay;
-                                document.getElementById('leave-modal-type').innerText = data.leave_type;
-                                document.getElementById('leave-modal-from').innerText = data.start_date;
-                                document.getElementById('leave-modal-to').innerText = data.end_date;
-                                document.getElementById('leave-modal-reason').innerText = data.reason;
-                                document.getElementById('leave-modal-id').value = leaveId;
+                            document.getElementById('leave-modal-employee').innerHTML =
+                                empDisplay;
+                            document.getElementById('leave-modal-type').innerText = data
+                                .leave_type;
+                            document.getElementById('leave-modal-from').innerText = data
+                                .start_date;
+                            document.getElementById('leave-modal-to').innerText = data
+                                .end_date;
+                            document.getElementById('leave-modal-reason').innerText = data
+                                .reason;
+                            document.getElementById('leave-modal-id').value = leaveId;
 
-                                const form = document.getElementById('leave-modal-action-form');
-                                form.setAttribute('action', `/leaves/${leaveId}/change-status`);
+                            const form = document.getElementById('leave-modal-action-form');
+                            form.setAttribute('action', `/leaves/${leaveId}/change-status`);
 
-                                document.getElementById('leave-modal-approve').onclick = function() {
+                            document.getElementById('leave-modal-approve').onclick =
+                                function() {
                                     form.statusAction = 'Approved';
                                 };
-                                document.getElementById('leave-modal-reject').onclick = function() {
+                            document.getElementById('leave-modal-reject').onclick =
+                                function() {
                                     form.statusAction = 'Rejected';
                                 };
 
-                                document.getElementById('leave-modal').classList.remove('hidden');
-                            })
-                            .catch(() => {
-                                alert('Could not load leave details.');
-                            });
-                    });
-                }
-            });
-
-            // Handle form submission
-            document.getElementById('leave-modal-action-form').onsubmit = function(e) {
-                if (!this.statusAction) {
-                    e.preventDefault();
-                    alert('Please select Approve or Reject.');
-                    return false;
-                }
-                let statusInput = this.querySelector('input[name="status"]');
-                if (!statusInput) {
-                    statusInput = document.createElement('input');
-                    statusInput.type = 'hidden';
-                    statusInput.name = 'status';
-                    this.appendChild(statusInput);
-                }
-                statusInput.value = this.statusAction;
-                return true;
-            };
-
-            // Modal close handlers
-            document.getElementById('leave-modal-close').onclick = function() {
-                document.getElementById('leave-modal').classList.add('hidden');
-            };
-
-            document.getElementById('leave-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.add('hidden');
-                }
-            });
+                            document.getElementById('leave-modal').classList.remove(
+                                'hidden');
+                        })
+                        .catch(() => {
+                            alert('Could not load leave details.');
+                        });
+                });
+            }
         });
-    </script>
+
+        // Handle form submission
+        document.getElementById('leave-modal-action-form').onsubmit = function(e) {
+            if (!this.statusAction) {
+                e.preventDefault();
+                alert('Please select Approve or Reject.');
+                return false;
+            }
+            let statusInput = this.querySelector('input[name="status"]');
+            if (!statusInput) {
+                statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'status';
+                this.appendChild(statusInput);
+            }
+            statusInput.value = this.statusAction;
+            return true;
+        };
+
+        // Modal close handlers
+        document.getElementById('leave-modal-close').onclick = function() {
+            document.getElementById('leave-modal').classList.add('hidden');
+        };
+
+        document.getElementById('leave-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    });
+</script>
 {{-- @endsection --}}

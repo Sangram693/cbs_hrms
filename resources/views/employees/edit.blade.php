@@ -232,34 +232,53 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {            // Company and Department filtering
+        document.addEventListener('DOMContentLoaded', function() {
             const companySelect = document.getElementById('company_id');
             const departmentSelect = document.getElementById('department_id');
             const designationSelect = document.getElementById('designation_id');
-            const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
 
             function filterDepartments() {
+                const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
+                
                 Array.from(departmentSelect.options).forEach(option => {
-                    if (!option.value) return;
-                    option.style.display = option.getAttribute('data-company') === companyId ? '' : 'none';
+                    if (!option.value) return; // Skip the "Select Department" option
+                    option.style.display = (companyId && option.getAttribute('data-company') === companyId) ? '' : 'none';
                 });
-                if (departmentSelect.selectedOptions.length && departmentSelect.selectedOptions[0].style.display === 'none') {
+
+                // Reset department selection if the selected option is now hidden
+                if (departmentSelect.selectedOptions[0] && departmentSelect.selectedOptions[0].style.display === 'none') {
                     departmentSelect.value = '';
                 }
+                
                 filterDesignations();
-            }            function filterDesignations() {
+            }
+
+            function filterDesignations() {
                 const departmentId = departmentSelect.value;
                 Array.from(designationSelect.options).forEach(option => {
-                    if (!option.value) return;
-                    // Hide all options if no department selected, otherwise show only matching ones
+                    if (!option.value) return; // Skip the "Select Designation" option
                     option.style.display = (departmentId && option.getAttribute('data-department') === departmentId) ? '' : 'none';
                 });
-            }// Only add company change listener if the select exists (for super admin)
-            if (companySelect) {
-                companySelect.addEventListener('change', filterDepartments);
+
+                // Reset designation selection if the selected option is now hidden
+                if (designationSelect.selectedOptions[0] && designationSelect.selectedOptions[0].style.display === 'none') {
+                    designationSelect.value = '';
+                }
             }
-            departmentSelect.addEventListener('change', filterDesignations);
-            filterDepartments(); // Initial filter
+
+            // Only add company change listener if the select exists (for super admin)
+            if (companySelect) {
+                companySelect.addEventListener('change', function() {
+                    filterDepartments();
+                });
+            }
+
+            departmentSelect.addEventListener('change', function() {
+                filterDesignations();
+            });
+
+            // Initial filtering
+            filterDepartments();
         });
     </script>
 @endsection

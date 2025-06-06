@@ -19,26 +19,48 @@ class DesignationController extends Controller
 
         $designations = $query->get();
         return view('designations.index', compact('designations'));
-    }
-
-    public function create()
+    }    public function create()
     {
         $user = auth()->user();
-        $departments = $user->isSuperAdmin() 
-            ? Department::all() 
-            : Department::where('company_id', $user->company_id)->get();
-        return view('designations.create', compact('departments'));
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        if ($isSuperAdmin) {
+            $companies = \App\Models\Company::all();
+            $departments = Department::with('company')->get();
+        } else {
+            $departments = Department::where('company_id', $user->company_id)->get();
+        }
+
+        return view('designations.create', compact('departments', 'isSuperAdmin', isset($companies) ? 'companies' : ''));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        $rules = [
             'title' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id'
-        ]);
+        ];
 
-        $department = Department::findOrFail($request->department_id);
-        $validated['company_id'] = $department->company_id;
+        if ($isSuperAdmin) {
+            $rules['company_id'] = 'required|exists:companies,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        // For superadmin, verify that the department belongs to the selected company
+        if ($isSuperAdmin) {
+            $department = Department::findOrFail($request->department_id);
+            if ($department->company_id != $request->company_id) {
+                return back()->withErrors(['department_id' => 'The selected department must belong to the selected company.'])->withInput();
+            }
+            $validated['company_id'] = $request->company_id;
+        } else {
+            $department = Department::findOrFail($request->department_id);
+            $validated['company_id'] = $user->company_id;
+        }
 
         Designation::create($validated);
 
@@ -48,24 +70,50 @@ class DesignationController extends Controller
     public function edit(Designation $designation)
     {
         $user = auth()->user();
-        $departments = $user->isSuperAdmin() 
-            ? Department::all() 
-            : Department::where('company_id', $user->company_id)->get();
-        return view('designations.edit', compact('designation', 'departments'));
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        if ($isSuperAdmin) {
+            $companies = \App\Models\Company::all();
+            $departments = Department::with('company')->get();
+        } else {
+            $departments = Department::where('company_id', $user->company_id)->get();
+        }
+
+        return view('designations.edit', compact('designation', 'departments', 'isSuperAdmin', isset($companies) ? 'companies' : ''));
     }
 
     public function update(Request $request, Designation $designation)
     {
-        $validated = $request->validate([
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        $rules = [
             'title' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id'
-        ]);
+        ];
 
-        $department = Department::findOrFail($request->department_id);
-        $validated['company_id'] = $department->company_id;
+        if ($isSuperAdmin) {
+            $rules['company_id'] = 'required|exists:companies,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        // For superadmin, verify that the department belongs to the selected company
+        if ($isSuperAdmin) {
+            $department = Department::findOrFail($request->department_id);
+            if ($department->company_id != $request->company_id) {
+                return back()->withErrors(['department_id' => 'The selected department must belong to the selected company.'])->withInput();
+            }
+            $validated['company_id'] = $request->company_id;
+        } else {
+            $department = Department::findOrFail($request->department_id);
+            if ($department->company_id != $user->company_id) {
+                return back()->withErrors(['department_id' => 'The selected department must belong to your company.'])->withInput();
+            }
+            $validated['company_id'] = $user->company_id;
+        }
 
         $designation->update($validated);
-
         return redirect()->route('designations.index')->with('success', 'Designation updated successfully.');
     }
 

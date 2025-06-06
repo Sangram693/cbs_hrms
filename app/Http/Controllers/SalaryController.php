@@ -34,8 +34,16 @@ class SalaryController extends Controller
     public function create()
     {
         $user = auth()->user();
+        $companies = null;
+        $companyId = null;
+        $employees = collect();
+        
         if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
+            $companies = \App\Models\Company::all();
+            $companyId = request()->input('company_id');
+            if ($companyId) {
+                $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+            }
         } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
         } elseif ($user->isUser() && $user->employee) {
@@ -45,10 +53,9 @@ class SalaryController extends Controller
             } else {
                 $employees = collect([\App\Models\Employee::find($user->employee->id)]);
             }
-        } else {
-            $employees = collect();
         }
-        return view('salaries.create', compact('employees'));
+        
+        return view('salaries.create', compact('employees', 'companies', 'companyId'));
     }
 
     // Store a newly created resource in storage.
@@ -80,12 +87,26 @@ class SalaryController extends Controller
     public function edit(Salary $salary)
     {
         $user = auth()->user();
-        if ($user->role === 'superadmin' || $user->role === 'super_admin') {
-            $employees = \App\Models\Employee::all();
-        } else {
+        $companies = null;
+        $companyId = null;
+        $employees = collect();
+
+        if ($user->isSuperAdmin()) {
+            $companies = \App\Models\Company::all();
+            $companyId = request()->input('company_id', $salary->company_id);
+            $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+        } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
+        } elseif ($user->isUser() && $user->employee) {
+            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
+            if ($hrDepartments->count() > 0) {
+                $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
+            } else {
+                $employees = collect([\App\Models\Employee::find($user->employee->id)]);
+            }
         }
-        return view('salaries.edit', compact('salary', 'employees'));
+
+        return view('salaries.edit', compact('salary', 'employees', 'companies', 'companyId'));
     }
 
     // Update the specified resource in storage.

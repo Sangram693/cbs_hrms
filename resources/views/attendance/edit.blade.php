@@ -11,12 +11,29 @@
                 $user = auth()->user();
                 $isHr = $user->isHr();
             @endphp
-            <label class="block mb-1 font-semibold">Employee</label>
+             <div class="mb-4">
+            @if(auth()->user()->isSuperAdmin())
+                <label class="block mb-1 font-semibold">Company</label>
+                <select name="company_id" class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
+                    <option value="">Select Company</option>
+                    @foreach(\App\Models\Company::all() as $company)
+                        <option value="{{ $company->id }}" {{ old('company_id', $attendance->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                    @endforeach
+                </select>
+                @error('company_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            @else
+                <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
+            @endif
+        </div>            <label class="block mb-1 font-semibold">Employee</label>
             @if($user->isSuperAdmin() || $user->isAdmin() || $isHr)
-                <select name="employee_id" class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror">
+                <select name="employee_id" class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror" {{ $user->isSuperAdmin() ? 'disabled' : '' }}>
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ old('employee_id', $attendance->employee_id) == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
+                        <option value="{{ $employee->id }}" 
+                            data-company="{{ $employee->company_id }}"
+                            {{ old('employee_id', $attendance->employee_id) == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }}
+                        </option>
                     @endforeach
                 </select>
                 @error('employee_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
@@ -74,20 +91,7 @@
             @error('status')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
         </div>
 
-        <div class="mb-4">
-            @if(auth()->user()->isSuperAdmin())
-                <label class="block mb-1 font-semibold">Company</label>
-                <select name="company_id" class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
-                    <option value="">Select Company</option>
-                    @foreach(\App\Models\Company::all() as $company)
-                        <option value="{{ $company->id }}" {{ old('company_id', $attendance->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                    @endforeach
-                </select>
-                @error('company_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
-            @else
-                <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
-            @endif
-        </div>
+       
 
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
         <a href="{{ route('attendance.index') }}" class="ml-2 text-gray-600">Cancel</a>
@@ -121,11 +125,38 @@
                 checkOutField.style.opacity = '0.5';
                 // Don't clear values - preserve them in case the user changes status back
             }
+        }        // Handle employee filtering based on company selection
+        function handleCompanyChange() {
+            const companySelect = document.querySelector('select[name="company_id"]');
+            const employeeSelect = document.querySelector('select[name="employee_id"]');
+            
+            if (!companySelect || !employeeSelect) return; // Exit if not superadmin view
+            
+            const selectedCompanyId = companySelect.value;
+            employeeSelect.disabled = !selectedCompanyId;
+            
+            Array.from(employeeSelect.options).forEach(option => {
+                if (option.value === '') return; // Skip the placeholder option
+                const companyId = option.getAttribute('data-company');
+                option.style.display = !selectedCompanyId || companyId === selectedCompanyId ? '' : 'none';
+            });
+            
+            // Reset employee selection if it's not from the selected company
+            const currentEmployee = employeeSelect.options[employeeSelect.selectedIndex];
+            if (currentEmployee && currentEmployee.value && currentEmployee.getAttribute('data-company') !== selectedCompanyId) {
+                employeeSelect.value = '';
+            }
         }
 
         // Initialize the form state
         document.addEventListener('DOMContentLoaded', function() {
             handleStatusChange();
+            
+            const companySelect = document.querySelector('select[name="company_id"]');
+            if (companySelect) {
+                companySelect.addEventListener('change', handleCompanyChange);
+                handleCompanyChange(); // Run initially to set correct state
+            }
         });
     </script>
 </div>

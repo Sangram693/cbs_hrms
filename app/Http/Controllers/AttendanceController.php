@@ -34,12 +34,12 @@ class AttendanceController extends Controller
         return view('attendance.index', compact('attendances'));
     }
 
-    // Show the form for creating a new resource.
+        // Show the form for creating a new resource.
     public function create()
     {
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
+            $employees = \App\Models\Employee::with('company')->get();
         } elseif ($user->isAdmin()) {
             $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
         } elseif ($user->isUser() && $user->employee) {
@@ -60,6 +60,7 @@ class AttendanceController extends Controller
         
         // Base validation rules
         $rules = [
+            'company_id' => 'required|exists:companies,id',
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
             'status' => 'required|string|in:Present,Absent,Leave',
@@ -109,16 +110,14 @@ class AttendanceController extends Controller
         
         Attendance::create($validated);
         return redirect()->route('attendance.index')->with('success', 'Attendance created successfully.');
-    }
-
-    // Show the form for editing the specified resource.
+    }    // Show the form for editing the specified resource.
     public function edit(Attendance $attendance)
     {
         $user = auth()->user();
-        if ($user->isSuperAdmin() || $user->isAdmin()) {
-            $employees = $user->isSuperAdmin()
-                ? \App\Models\Employee::all()
-                : \App\Models\Employee::where('company_id', $user->company_id)->get();
+        if ($user->isSuperAdmin()) {
+            $employees = \App\Models\Employee::with('company')->get();
+        } elseif ($user->isAdmin()) {
+            $employees = \App\Models\Employee::where('company_id', $user->company_id)->get();
         } elseif ($user->isUser() && $user->employee) {
             $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
             if ($hrDepartments->count() > 0) {
@@ -129,6 +128,7 @@ class AttendanceController extends Controller
         } else {
             $employees = \App\Models\Employee::where('id', $user->employee_id)->get();
         }
+        
         return view('attendance.edit', compact('attendance', 'employees'));
     }
 

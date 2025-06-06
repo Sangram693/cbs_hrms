@@ -30,28 +30,32 @@ class LeaveController extends Controller
             $leaves = collect();
         }
         return view('leaves.index', compact('leaves'));
-    }    public function create(Request $request)
+    }      public function create(Request $request)
     {
         $user = $request->user();
+        $companyId = null;
+        $companies = null;
+        $employees = collect();
+        $leaveTypes = collect();
         
-        // Get company ID based on user role
         if ($user->isSuperAdmin()) {
+            $companies = \App\Models\Company::all();
             $companyId = $request->input('company_id');
-        } elseif ($user->employee) {
-            $companyId = $user->employee->company_id;
+            if ($companyId) {
+                $employees = \App\Models\Employee::where('company_id', $companyId)->get();
+                $leaveTypes = \App\Models\LeaveType::where('company_id', $companyId)->get();
+            }
         } else {
-            // Redirect back if user has no employee record
-            return redirect()->route('leaves.index')->with('error', 'No employee record found.');
+            $companyId = $user->employee ? $user->employee->company_id : null;
+            if ($companyId) {
+                $employees = $user->isAdmin() || $user->isHr()
+                    ? \App\Models\Employee::where('company_id', $companyId)->get()
+                    : collect([$user->employee]);
+                $leaveTypes = \App\Models\LeaveType::where('company_id', $companyId)->get();
+            }
         }
         
-        // Get employees based on user role
-        $employees = $user->isSuperAdmin() || $user->isAdmin() || $user->isHr()
-            ? \App\Models\Employee::where('company_id', $companyId)->get()
-            : collect([$user->employee]);
-        
-        // Get leave types based on company ID for all users
-        $leaveTypes = $companyId ? \App\Models\LeaveType::where('company_id', $companyId)->get() : collect();
-        return view('leaves.create', compact('employees', 'leaveTypes'));
+        return view('leaves.create', compact('employees', 'leaveTypes', 'companies', 'companyId'));
     }
 
     public function store(Request $request)
@@ -74,37 +78,36 @@ class LeaveController extends Controller
 
     public function show($id, Request $request)
     {
-        $leave = Leave::where('company_id', $request->user()->company_id)->findOrFail($id);
+        $user = $request->user();
+        $query = Leave::query();
+        
+        // Super admin can view all leaves
+        if (!$user->isSuperAdmin()) {
+            $query->where('company_id', $user->company_id);
+        }
+        
+        $leave = $query->with('employee')->findOrFail($id);
         return response()->json($leave);
     }    public function edit(Leave $leave, Request $request)
     {
         $user = $request->user();
         
-        // Get company ID based on user role
         if ($user->isSuperAdmin()) {
-            $companyId = $leave->company_id;
-        } elseif ($user->employee) {
-            $companyId = $user->employee->company_id;
-        } else {
-            // Redirect back if user has no employee record
-            return redirect()->route('leaves.index')->with('error', 'No employee record found.');
-        }
-        
-        // Get employees based on user role
-        if ($user->isSuperAdmin()) {
-            $employees = \App\Models\Employee::all();
-        } elseif ($user->isAdmin()) {
+            $companies = \App\Models\Company::all();
+            $companyId = $request->input('company_id', $leave->company_id);
             $employees = \App\Models\Employee::where('company_id', $companyId)->get();
-        } elseif ($user->isHr()) {
-            $hrDepartments = \App\Models\Department::where('hr_id', $user->employee->id)->pluck('id');
-            $employees = \App\Models\Employee::whereIn('department_id', $hrDepartments)->get();
         } else {
-            $employees = collect([$user->employee]);
+            $companies = null;
+            $companyId = $user->employee ? $user->employee->company_id : null;
+            $employees = $user->isAdmin() || $user->isHr()
+                ? \App\Models\Employee::where('company_id', $companyId)->get()
+                : collect([$user->employee]);
         }
         
         // Get leave types based on company ID
         $leaveTypes = \App\Models\LeaveType::where('company_id', $companyId)->get();
-        return view('leaves.edit', compact('leave', 'employees', 'leaveTypes'));
+        
+        return view('leaves.edit', compact('leave', 'employees', 'leaveTypes', 'companies', 'companyId'));
     }
 
     public function update(Request $request, Leave $leave)

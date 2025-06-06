@@ -43,7 +43,8 @@
                         {{ $message }}
                     </div>
                 @enderror
-            </div>            @if (auth()->user()->isSuperAdmin())
+            </div>
+            @if (auth()->user()->isSuperAdmin())
                 <div class="mb-4">
                     <label class="block mb-1">
                         <span class="font-semibold">Company</span>
@@ -73,11 +74,11 @@
                 <input type="hidden" name="company_id" value="{{ auth()->user()->company_id }}">
             @endif
 
-           <div class="mb-4">
+            <div class="mb-4">
                 <label class="block mb-1">
                     <span class="font-semibold">Department</span>
                 </label>
-                <select name="department_id" id="department_id" 
+                <select name="department_id" id="department_id"
                     class="w-full border rounded px-3 py-2 @error('department_id') border-red-500 @enderror">
                     <option value="">Select Department</option>
                     @foreach ($departments as $department)
@@ -89,7 +90,9 @@
                 @error('department_id')
                     <div class="text-red-600 text-sm mt-1 flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
                         </svg>
                         {{ $message }}
                     </div>
@@ -98,7 +101,7 @@
 
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Designation</label>
-                <select name="designation_id" id="designation_id" 
+                <select name="designation_id" id="designation_id"
                     class="w-full border rounded px-3 py-2 @error('designation_id') border-red-500 @enderror">
                     <option value="">Select Designation</option>
                     @foreach ($designations as $designation)
@@ -110,7 +113,9 @@
                 @error('designation_id')
                     <div class="text-red-600 text-sm mt-1 flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
                         </svg>
                         {{ $message }}
                     </div>
@@ -236,35 +241,56 @@
             </div>
         </form>
     </div>
-<script>        document.addEventListener('DOMContentLoaded', function() {
-            // Company and Department filtering
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             const companySelect = document.getElementById('company_id');
             const departmentSelect = document.getElementById('department_id');
             const designationSelect = document.getElementById('designation_id');
-            const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
 
             function filterDepartments() {
+                const companyId = companySelect ? companySelect.value : '{{ auth()->user()->company_id }}';
+                
                 Array.from(departmentSelect.options).forEach(option => {
-                    if (!option.value) return;
-                    option.style.display = option.getAttribute('data-company') === companyId ? '' : 'none';
+                    if (!option.value) return; // Skip the "Select Department" option
+                    // Hide all options if no company selected, otherwise show only matching ones
+                    option.style.display = (companyId && option.getAttribute('data-company') === companyId) ? '' : 'none';
                 });
-                if (departmentSelect.selectedOptions.length && departmentSelect.selectedOptions[0].style.display === 'none') {
+
+                // Reset department selection if the selected option is now hidden
+                if (departmentSelect.selectedOptions[0] && departmentSelect.selectedOptions[0].style.display === 'none') {
                     departmentSelect.value = '';
                 }
+                
                 filterDesignations();
-            }            function filterDesignations() {
+            }
+
+            function filterDesignations() {
                 const departmentId = departmentSelect.value;
                 Array.from(designationSelect.options).forEach(option => {
-                    if (!option.value) return;
+                    if (!option.value) return; // Skip the "Select Designation" option
                     // Hide all options if no department selected, otherwise show only matching ones
                     option.style.display = (departmentId && option.getAttribute('data-department') === departmentId) ? '' : 'none';
                 });
-            }// Only add company change listener if the select exists (for super admin)
-            if (companySelect) {
-                companySelect.addEventListener('change', filterDepartments);
+
+                // Reset designation selection if the selected option is now hidden
+                if (designationSelect.selectedOptions[0] && designationSelect.selectedOptions[0].style.display === 'none') {
+                    designationSelect.value = '';
+                }
             }
-            departmentSelect.addEventListener('change', filterDesignations);
-            filterDepartments(); // Initial filter
+
+            // Only add company change listener if the select exists (for super admin)
+            if (companySelect) {
+                companySelect.addEventListener('change', function() {
+                    filterDepartments();
+                });
+            }
+
+            departmentSelect.addEventListener('change', function() {
+                filterDesignations();
+            });
+
+            // Initial filtering
+            filterDepartments();
         });
     </script>
 @endsection

@@ -10,14 +10,41 @@
                 $user = auth()->user();
                 $isHr = $user->isHr();
             @endphp
+            
+            @if($user->isSuperAdmin())
+                <div class="mb-4">
+                    <label class="block mb-1">
+                        <span class="font-semibold">Company</span>
+                        <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <select name="company_id" id="company_select" 
+                            class="w-full border rounded px-3 py-2 @error('company_id') border-red-500 @enderror">
+                        <option value="">Select Company</option>
+                        @foreach($companies as $company)
+                            <option value="{{ $company->id }}" {{ old('company_id', request('company_id')) == $company->id ? 'selected' : '' }}>
+                                {{ $company->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('company_id')
+                        <div class="text-red-600 text-sm mt-1 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+            @endif
            
             @if($user->isSuperAdmin() || $user->isAdmin() || $isHr)
                 <label class="block mb-1">
                     <span class="font-semibold">Employee</span>
                     <span class="text-red-500 ml-1">*</span>
                 </label>
-                <select name="employee_id" 
-                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror">
+                <select name="employee_id" id="employee_select"
+                        class="w-full border rounded px-3 py-2 @error('employee_id') border-red-500 @enderror"
+                        {{ $user->isSuperAdmin() && !request('company_id') ? 'disabled' : '' }}>
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
                         <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
@@ -36,18 +63,17 @@
             @else
                 <input type="hidden" name="employee_id" value="{{ auth()->user()->employee_id }}">
             @endif
-        </div>
-
+        </div>        @if (!$user->isSuperAdmin() || request('company_id'))
         <div class="mb-4">
             <label class="block mb-1">
                 <span class="font-semibold">Type</span>
                 <span class="text-red-500 ml-1">*</span>
             </label>
-            <select name="leave_type" 
+            <select name="leave_type" id="leave_type_select"
                     class="w-full border rounded px-3 py-2 @error('leave_type') border-red-500 @enderror">
                 <option value="">Select Type</option>
                 @foreach($leaveTypes as $leaveType)
-                    <option value="{{ $leaveType->name }}" {{ old('leave_type', $leave->leave_type ?? $leave->type ?? null) == $leaveType->name ? 'selected' : '' }}>
+                    <option value="{{ $leaveType->name }}" {{ old('leave_type') == $leaveType->name ? 'selected' : '' }}>
                         {{ $leaveType->name }}
                     </option>
                 @endforeach
@@ -61,6 +87,7 @@
                 </div>
             @enderror
         </div>
+        @endif
 
         <div class="mb-4">
             <label class="block mb-1">
@@ -127,4 +154,23 @@
         </div>
     </form>
 </div>
+
+@if($user->isSuperAdmin())
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companySelect = document.getElementById('company_select');
+    const employeeSelect = document.getElementById('employee_select');
+    
+    companySelect.addEventListener('change', function() {
+        if (this.value) {
+            window.location.href = '{{ route('leaves.create') }}?company_id=' + this.value;
+        } else {
+            employeeSelect.disabled = true;
+            employeeSelect.innerHTML = '<option value="">Select Employee</option>';
+        }
+    });
+});
+</script>
+@endif
+
 @endsection
