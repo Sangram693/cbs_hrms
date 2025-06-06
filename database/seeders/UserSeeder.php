@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             ['email' => 'sneider@cbsiot.live'],
             [
                 'id' => Str::uuid(),
-                'name' => 'Super Admin',
+                'name' => 'Sangram Roygupta',
                 'password' => 'Sneider@143#',
                 'role' => 'super_admin',
                 'company_id' => null,

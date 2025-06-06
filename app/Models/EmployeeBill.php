@@ -2,26 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Salary extends Model
+class EmployeeBill extends Model
 {
-    use HasFactory;
-
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
         'id',
         'employee_id',
-        'salary_month',
-        'base_salary',
-        'bonus',
-        'deductions',
-        'net_salary',
-        'paid_on',
-        'company_id',
+        'bill_type',
+        'amount',
+        'description',
+        'file_path',
+        'status',
+        'rejection_reason',
+        'bill_date',
+        'approved_by',
+        'company_id'
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'bill_date' => 'date',
     ];
 
     protected static function boot()
@@ -39,15 +43,13 @@ class Salary extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function approver()
+    {
+        return $this->belongsTo(Employee::class, 'approved_by');
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
-    }
-
-    public function bills()
-    {
-        return $this->hasMany(EmployeeBill::class, 'employee_id', 'employee_id')
-            ->whereMonth('bill_date', date('m', strtotime($this->month)))
-            ->whereYear('bill_date', date('Y', strtotime($this->month)));
     }
 }

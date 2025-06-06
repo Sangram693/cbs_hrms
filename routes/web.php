@@ -13,6 +13,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\TrainingController;
+use App\Http\Controllers\EmployeeBillController;
 
 // Public login page
 Route::get('/login', function () {
@@ -47,6 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('salaries', SalaryController::class);
     Route::resource('trainings', TrainingController::class);
     Route::resource('leavetypes', App\Http\Controllers\LeaveTypeController::class);
+    
+    // Employee Bills routes
+    Route::get('/bills/upload', [EmployeeBillController::class, 'create'])->name('bills.upload');
+    Route::resource('bills', EmployeeBillController::class)->except(['edit', 'update']);
+    Route::patch('bills/{bill}/update-status', [EmployeeBillController::class, 'updateStatus'])->name('bills.update-status');
 
     // Add this route for changing leave status
     Route::post('/leaves/{leave}/change-status', [App\Http\Controllers\LeaveController::class, 'changeStatus'])->name('leaves.changeStatus');

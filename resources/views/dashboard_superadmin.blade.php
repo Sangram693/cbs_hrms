@@ -19,7 +19,7 @@
                     [ 'label' => 'Designations', 'icon' => '💼', 'color' => 'purple', 'route' => route('designations.index'), 'count' => $stats['designations'] ?? 0 ],
                     [ 'label' => 'Attendance', 'icon' => '🕒', 'color' => 'pink', 'route' => route('attendance.index'), 'count' => $stats['attendance'] ?? 0 ],
                     [ 'label' => 'Leaves', 'icon' => '🌴', 'color' => 'indigo', 'route' => route('leaves.index'), 'count' => $stats['leaves'] ?? 0, 'badge' => $stats['pending_leaves'] ?? 0 ],
-                    [ 'label' => 'Salaries', 'icon' => '💰', 'color' => 'red', 'route' => route('salaries.index'), 'count' => $stats['salaries'] ?? 0 ],
+                    [ 'label' => 'Salaries', 'icon' => '💰', 'color' => 'red', 'route' => route('salaries.index'), 'count' => $stats['salaries'] ?? 0, 'badge' => $stats['pending_bills'] ?? 0, ],
                     [ 'label' => 'Trainings', 'icon' => '📚', 'color' => 'teal', 'route' => route('trainings.index'), 'count' => $stats['trainings'] ?? 0 ],
                 ];
             @endphp

@@ -143,6 +143,7 @@ class UserController extends Controller
             $stats['pending_leaves'] = DB::table('leaves')->where('status', 'Pending')->count();
             $stats['salaries'] = DB::table('salaries')->count();
             $stats['trainings'] = DB::table('trainings')->count();
+            $stats['pending_bills'] = DB::table('employee_bills')->where('status', 'pending')->count();
         } elseif ($companyId) {
             $stats['companies'] = 1;
             $stats['employees'] = DB::table('employees')->where('company_id', $companyId)->where('status', "Active")->count();
@@ -153,6 +154,7 @@ class UserController extends Controller
             $stats['pending_leaves'] = DB::table('leaves')->where('company_id', $companyId)->where('status', 'Pending')->count();
             $stats['salaries'] = DB::table('salaries')->where('company_id', $companyId)->count();
             $stats['trainings'] = DB::table('trainings')->where('company_id', $companyId)->count();
+            $stats['pending_bills'] = DB::table('employee_bills')->where('company_id', $companyId)->where('status', 'pending')->count();
         } else {
             $stats = [
                 'companies' => 0,
@@ -164,6 +166,7 @@ class UserController extends Controller
                 'pending_leaves' => 0,
                 'salaries' => 0,
                 'trainings' => 0,
+                'pending_bills' => 0,
             ];
         }
         return $returnArray ? $stats : response()->json($stats);

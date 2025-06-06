@@ -47,7 +47,7 @@
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
                         <option value="{{ $employee->id }}" 
-                                {{ old('employee_id') == $employee->id ? 'selected' : '' }}
+                                {{ (old('employee_id', $selectedEmployeeId) == $employee->id) ? 'selected' : '' }}
                                 data-salary="{{ $employee->salary ?? 0 }}">
                             {{ $employee->name }}
                         </option>
@@ -74,7 +74,7 @@
             <input type="month" 
                    name="salary_month" 
                    class="w-full border rounded px-3 py-2 @error('salary_month') border-red-500 @enderror" 
-                   value="{{ old('salary_month') }}">
+                   value="{{ old('salary_month', $selectedMonth) }}">
             @error('salary_month')
                 <div class="text-red-600 text-sm mt-1 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -112,7 +112,7 @@
             <input type="number" 
                    name="base_salary" 
                    class="w-full border rounded px-3 py-2 @error('base_salary') border-red-500 @enderror salary-input" 
-                   value="{{ old('base_salary') }}"
+                   value="{{ old('base_salary', $baseSalary) }}"
                    min="0"
                    step="0.01">
             @error('base_salary')
@@ -167,6 +167,41 @@
             @enderror
         </div>
 
+        <div class="mb-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block mb-2">
+                    <span class="font-semibold">Approved Bills for Selected Month</span>
+                </label>
+                <div class="space-y-2">
+                    @if($bills->isNotEmpty())
+                        @foreach($bills as $bill)
+                            <div class="flex justify-between items-center text-sm">
+                                <span>{{ $bill->bill_type }} ({{ $bill->bill_date->format('Y-m-d') }})</span>
+                                <span>{{ number_format($bill->amount, 2) }}</span>
+                            </div>
+                        @endforeach
+                        <div class="border-t mt-2 pt-2 flex justify-between font-semibold">
+                            <span>Total Bill Amount:</span>
+                            <span>{{ number_format($bills->sum('amount'), 2) }}</span>
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-sm">No approved bills found for the selected month.</p>
+                    @endif
+                </div>
+            </div>
+            <input type="hidden" name="bill_amount" value="{{ $bills->sum('amount') }}" id="billAmount">
+        </div>
+
+        <div class="mb-4">
+            <label class="block mb-1">
+                <span class="font-semibold">Net Salary</span>
+            </label>
+            <input type="text" 
+                   class="w-full border rounded px-3 py-2 bg-gray-50" 
+                   id="displayNetSalary" 
+                   readonly>
+        </div>
+
         <input type="hidden" name="net_salary" value="0">
 
         <div class="flex items-center gap-2">
@@ -185,47 +220,97 @@
 document.addEventListener('DOMContentLoaded', function() {
     const companySelect = document.getElementById('company_id');
     const employeeSelect = document.getElementById('employee_id');
-    const employeeSection = document.querySelector('.employee-section');
     const salaryInputs = document.querySelectorAll('.salary-input');
     const netSalaryInput = document.querySelector('input[name="net_salary"]');
+    const displayNetSalaryInput = document.getElementById('displayNetSalary');
     const baseSalaryInput = document.querySelector('input[name="base_salary"]');
+    const billAmountInput = document.getElementById('billAmount');
+    const monthInput = document.querySelector('input[name="salary_month"]');
 
     function calculateNetSalary() {
         const baseSalary = parseFloat(baseSalaryInput.value) || 0;
         const bonus = parseFloat(document.querySelector('input[name="bonus"]').value) || 0;
         const deductions = parseFloat(document.querySelector('input[name="deductions"]').value) || 0;
+        const billAmount = parseFloat(billAmountInput.value) || 0;
         
-        const netSalary = baseSalary + bonus - deductions;
+        const netSalary = baseSalary + bonus + billAmount - deductions;
         netSalaryInput.value = netSalary.toFixed(2);
+        displayNetSalaryInput.value = netSalary.toFixed(2);
     }
 
-    // Update base salary when employee is selected
+    // Update base salary and redirect when employee is selected
     if (employeeSelect) {
         employeeSelect.addEventListener('change', function() {
+            const selectedEmployee = this.value;
             const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.salary) {
-                baseSalaryInput.value = selectedOption.dataset.salary;
-                calculateNetSalary();
+            const currentBaseSalary = selectedOption && selectedOption.dataset.salary ? selectedOption.dataset.salary : 0;
+            const selectedMonth = monthInput.value;
+            const companyId = companySelect ? companySelect.value : null;
+
+            // Update base salary
+            baseSalaryInput.value = currentBaseSalary;
+            calculateNetSalary();
+
+            // Build URL with all parameters
+            const params = new URLSearchParams();
+            if (selectedEmployee) params.append('employee_id', selectedEmployee);
+            if (selectedMonth) params.append('salary_month', selectedMonth);
+            if (currentBaseSalary) params.append('base_salary', currentBaseSalary);
+            if (companyId) params.append('company_id', companyId);
+
+            // Redirect with parameters
+            window.location.href = `{{ route('salaries.create') }}?${params.toString()}`;
+        });
+    }
+
+    // Handle month change event
+    if (monthInput) {
+        monthInput.addEventListener('change', function() {
+            const selectedMonth = this.value;
+            const selectedEmployee = employeeSelect ? employeeSelect.value : null;
+            const currentBaseSalary = baseSalaryInput.value;
+            const companyId = companySelect ? companySelect.value : null;
+
+            if (selectedEmployee) {
+                // Build URL with all parameters
+                const params = new URLSearchParams();
+                params.append('employee_id', selectedEmployee);
+                if (selectedMonth) params.append('salary_month', selectedMonth);
+                if (currentBaseSalary) params.append('base_salary', currentBaseSalary);
+                if (companyId) params.append('company_id', companyId);
+
+                // Redirect with parameters
+                window.location.href = `{{ route('salaries.create') }}?${params.toString()}`;
             }
         });
     }
 
-    // Company change event
+    // Handle company change event
     if (companySelect) {
         companySelect.addEventListener('change', function() {
             const companyId = this.value;
-              if (companyId) {
-                // Show loading state
-                employeeSelect.disabled = true;
-                employeeSelect.innerHTML = '<option value="">Loading employees...</option>';
-                
-                // Fetch employees for selected company
-                window.location.href = `{{ route('salaries.create') }}?company_id=${companyId}`;
+            const currentBaseSalary = baseSalaryInput.value;
+            const selectedMonth = monthInput.value;
+
+            if (companyId) {
+                const params = new URLSearchParams();
+                params.append('company_id', companyId);
+                if (currentBaseSalary) params.append('base_salary', currentBaseSalary);
+                if (selectedMonth) params.append('salary_month', selectedMonth);
+                window.location.href = `{{ route('salaries.create') }}?${params.toString()}`;
             } else {
                 employeeSelect.disabled = true;
                 employeeSelect.innerHTML = '<option value="">Select Company First</option>';
             }
         });
+    }
+
+    // Set initial base salary from URL if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlBaseSalary = urlParams.get('base_salary');
+    if (urlBaseSalary) {
+        baseSalaryInput.value = urlBaseSalary;
+        calculateNetSalary();
     }
 
     // Recalculate net salary when any salary-related input changes

@@ -55,13 +55,13 @@
                             'route' => route('leaves.index'),
                             'count' => $stats['leaves'] ?? 0,
                             'badge' => $stats['pending_leaves'] ?? 0,
-                        ],
-                        [
+                        ],                        [
                             'label' => 'Salaries',
                             'icon' => '💰',
                             'color' => 'red',
                             'route' => route('salaries.index'),
                             'count' => $stats['salaries'] ?? 0,
+                            'badge' => $stats['pending_bills'] ?? 0,
                         ],
                         [
                             'label' => 'Trainings',
