@@ -140,6 +140,7 @@ class UserController extends Controller
             $stats['designations'] = DB::table('designations')->count();
             $stats['attendance'] = DB::table('attendances')->count();
             $stats['leaves'] = DB::table('leaves')->count();
+            $stats['pending_leaves'] = DB::table('leaves')->where('status', 'Pending')->count();
             $stats['salaries'] = DB::table('salaries')->count();
             $stats['trainings'] = DB::table('trainings')->count();
         } elseif ($companyId) {
@@ -149,6 +150,7 @@ class UserController extends Controller
             $stats['designations'] = DB::table('designations')->where('company_id', $companyId)->count();
             $stats['attendance'] = DB::table('attendances')->where('company_id', $companyId)->count();
             $stats['leaves'] = DB::table('leaves')->where('company_id', $companyId)->count();
+            $stats['pending_leaves'] = DB::table('leaves')->where('company_id', $companyId)->where('status', 'Pending')->count();
             $stats['salaries'] = DB::table('salaries')->where('company_id', $companyId)->count();
             $stats['trainings'] = DB::table('trainings')->where('company_id', $companyId)->count();
         } else {
@@ -159,6 +161,7 @@ class UserController extends Controller
                 'designations' => 0,
                 'attendance' => 0,
                 'leaves' => 0,
+                'pending_leaves' => 0,
                 'salaries' => 0,
                 'trainings' => 0,
             ];

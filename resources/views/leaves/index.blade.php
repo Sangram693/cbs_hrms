@@ -177,91 +177,76 @@
         </div>
     @endif
 @endsection
-
-@section('scripts')
+{{-- 
+@section('scripts') --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.pending-status').forEach(function(el) {
-                // Only attach click event if status is Pending                let isAdmin = @json(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin() || auth()->user()->isHr());
-                if (isAdmin && el.textContent.trim() === 'Pending') {
-                    el.style.cursor = 'pointer';
-                    el.addEventListener('click', function() {
+            const pendingStatuses = document.querySelectorAll('.pending-status');
+            pendingStatuses.forEach(function(element) {
+                if (element.textContent.trim() === 'Pending') {
+                    element.addEventListener('click', function() {
                         const leaveId = this.getAttribute('data-leave-id');
+                        if (!leaveId) return;
+
                         fetch(`/leaves/${leaveId}`)
-                            .then(response => response.ok ? response.json() : Promise.reject(
-                                'Not found'))
+                            .then(response => response.ok ? response.json() : Promise.reject('Not found'))
                             .then(data => {
                                 let empDisplay = '';
-                                if (data.employee && (data.employee.name || data.employee
-                                        .emp_id)) {
+                                if (data.employee && (data.employee.name || data.employee.emp_id)) {
                                     empDisplay = `<div>${data.employee.name ?? ''}</div>`;
                                     if (data.employee.emp_id) {
-                                        empDisplay +=
-                                            `<div class='text-xs text-gray-500'>(${data.employee.emp_id})</div>`;
+                                        empDisplay += `<div class='text-xs text-gray-500'>(${data.employee.emp_id})</div>`;
                                     }
                                 } else if (data.employee_id && data.employee_name) {
                                     empDisplay = `<div>${data.employee_name}</div>`;
                                     if (data.employee_emp_id) {
-                                        empDisplay +=
-                                            `<div class='text-xs text-gray-500'>(${data.employee_emp_id})</div>`;
+                                        empDisplay += `<div class='text-xs text-gray-500'>(${data.employee_emp_id})</div>`;
                                     }
                                 } else if (data.employee_id) {
-                                    // Try to show employee name and emp_id from the table row if available
-                                    const row = document.querySelector(
-                                        `[data-leave-id='${leaveId}']`).closest('tr');
+                                    const row = this.closest('tr');
                                     if (row) {
                                         const empCell = row.querySelector('td');
-                                        empDisplay = empCell ? empCell.innerHTML.trim() : data
-                                            .employee_id;
+                                        empDisplay = empCell ? empCell.innerHTML.trim() : data.employee_id;
                                     } else {
                                         empDisplay = data.employee_id;
                                     }
                                 } else {
                                     empDisplay = '-';
                                 }
-                                document.getElementById('leave-modal-employee').innerHTML =
-                                    empDisplay;
-                                document.getElementById('leave-modal-type').innerText = data
-                                    .leave_type;
-                                document.getElementById('leave-modal-from').innerText = data
-                                    .start_date;
-                                document.getElementById('leave-modal-to').innerText = data
-                                    .end_date;
-                                document.getElementById('leave-modal-reason').innerText = data
-                                    .reason;
+
+                                document.getElementById('leave-modal-employee').innerHTML = empDisplay;
+                                document.getElementById('leave-modal-type').innerText = data.leave_type;
+                                document.getElementById('leave-modal-from').innerText = data.start_date;
+                                document.getElementById('leave-modal-to').innerText = data.end_date;
+                                document.getElementById('leave-modal-reason').innerText = data.reason;
                                 document.getElementById('leave-modal-id').value = leaveId;
-                                // Set form action to the new changeStatus route
+
                                 const form = document.getElementById('leave-modal-action-form');
                                 form.setAttribute('action', `/leaves/${leaveId}/change-status`);
-                                // Set which button was clicked for status
-                                document.getElementById('leave-modal-approve').onclick =
-                                    function(e) {
-                                        form.statusAction = 'Approved';
-                                    };
-                                document.getElementById('leave-modal-reject').onclick =
-                                    function(e) {
-                                        form.statusAction = 'Rejected';
-                                    };
-                                document.getElementById('leave-modal').classList.remove(
-                                    'hidden');
+
+                                document.getElementById('leave-modal-approve').onclick = function() {
+                                    form.statusAction = 'Approved';
+                                };
+                                document.getElementById('leave-modal-reject').onclick = function() {
+                                    form.statusAction = 'Rejected';
+                                };
+
+                                document.getElementById('leave-modal').classList.remove('hidden');
                             })
                             .catch(() => {
                                 alert('Could not load leave details.');
                             });
                     });
-                } else {
-                    el.style.cursor = 'default';
-                    el.removeAttribute('data-leave-id');
                 }
             });
-            // Intercept form submit to add status
+
+            // Handle form submission
             document.getElementById('leave-modal-action-form').onsubmit = function(e) {
                 if (!this.statusAction) {
                     e.preventDefault();
                     alert('Please select Approve or Reject.');
                     return false;
                 }
-                // Add a hidden input for status
                 let statusInput = this.querySelector('input[name="status"]');
                 if (!statusInput) {
                     statusInput = document.createElement('input');
@@ -272,9 +257,12 @@
                 statusInput.value = this.statusAction;
                 return true;
             };
+
+            // Modal close handlers
             document.getElementById('leave-modal-close').onclick = function() {
                 document.getElementById('leave-modal').classList.add('hidden');
             };
+
             document.getElementById('leave-modal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     this.classList.add('hidden');
@@ -282,4 +270,4 @@
             });
         });
     </script>
-@endsection
+{{-- @endsection --}}

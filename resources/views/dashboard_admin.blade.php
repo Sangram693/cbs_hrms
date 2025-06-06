@@ -54,6 +54,7 @@
                             'color' => 'indigo',
                             'route' => route('leaves.index'),
                             'count' => $stats['leaves'] ?? 0,
+                            'badge' => $stats['pending_leaves'] ?? 0,
                         ],
                         [
                             'label' => 'Salaries',
@@ -70,11 +71,16 @@
                             'count' => $stats['trainings'] ?? 0,
                         ],
                     ];
-                @endphp
-                @foreach ($dashboardStats as $stat)
+                @endphp @foreach ($dashboardStats as $stat)
                     <a href="{{ $stat['route'] }}"
-                        class="group block bg-white border border-{{ $stat['color'] }}-200 rounded-xl p-3 shadow hover:shadow-xl transition flex flex-col items-center text-center hover:bg-{{ $stat['color'] }}-50 focus:outline-none focus:ring-2 focus:ring-{{ $stat['color'] }}-500"
+                        class="group block bg-white border border-{{ $stat['color'] }}-200 rounded-xl p-3 shadow hover:shadow-xl transition flex flex-col items-center text-center hover:bg-{{ $stat['color'] }}-50 focus:outline-none focus:ring-2 focus:ring-{{ $stat['color'] }}-500 relative"
                         role="link" aria-label="{{ $stat['label'] }} Statistics">
+                        @if (isset($stat['badge']) && $stat['badge'] > 0)
+                            <span
+                                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                {{ $stat['badge'] }}
+                            </span>
+                        @endif
                         <span
                             class="text-2xl mb-1 text-{{ $stat['color'] }}-500 group-hover:text-{{ $stat['color'] }}-700">{{ $stat['icon'] }}</span>
                         <span class="font-semibold text-{{ $stat['color'] }}-900 text-sm">{{ $stat['label'] }}</span>
